@@ -1,0 +1,294 @@
+{% extends "base.html" %}
+{% block title %}Duolingo - Lay ma CDK{% endblock %}
+{% block body %}
+<div class="page-shell">
+  <header class="site-header">
+    <a class="brand" href="#">
+      <span class="brand-mark">D</span>
+      <span><strong>Duolingo</strong><small>Dich vu nap ma</small></span>
+    </a>
+    <div class="header-actions">
+      <span class="live-badge"><span class="live-dot"></span> LIVE</span>
+    </div>
+  </header>
+  <main>
+    <section class="method-section">
+      <div class="section-heading">
+        <p class="eyebrow">CDK Code</p>
+        <h1>Nhan ma nap Duolingo</h1>
+      </div>
+      <div class="recharge-layout">
+        <div class="recharge-panel">
+
+          {% if cancelled %}
+          <section class="cdk-gate cdk-error-page">
+            <span class="cdk-gate-icon cdk-gate-icon-error">&#10005;</span>
+            <h2>Don hang da bi huy</h2>
+            <p>Vui long lien he nguoi ban.</p>
+          </section>
+
+          {% elif expired %}
+          <section class="cdk-gate cdk-error-page">
+            <span class="cdk-gate-icon cdk-gate-icon-warn">!</span>
+            <h2>Lien ket da het han</h2>
+            <p>Vui long lien he nguoi ban de cap ma moi.</p>
+          </section>
+
+          {% elif not activated %}
+          <section class="cdk-gate">
+            <span class="cdk-gate-icon">&#9654;</span>
+            <h2>San sang kich hoat?</h2>
+            <p>Nhan nut ben duoi de bat dau lay ma CDK</p>
+            <button id="activateBtn" class="activate-btn" onclick="startActivation()">Bat dau kich hoat</button>
+            <p style="margin-top:16px;font-size:12px;color:#999;">He thong tu dong dung sau 20 phut</p>
+          </section>
+
+          {% elif paused %}
+          <section class="cdk-gate">
+            <span class="cdk-gate-icon cdk-gate-icon-warn">&#9208;</span>
+            <h2>Da tam dung (20 phut)</h2>
+            <p>He thong da dung quet de tiet kiem tai nguyen</p>
+            <button id="resumeBtn" class="activate-btn" onclick="resumeScraping()">Tham gia lai</button>
+          </section>
+
+          {% else %}
+          <div id="codeDisplaySection">
+            <div class="cdk-summary"><strong>Ma CDK</strong></div>
+            <div class="recharge-form-card">
+              <section class="info-block code-block-main">
+                <div class="info-label">
+                  <span class="info-icon">&#128273;</span>
+                  <span>Ma CDK nap ngay</span>
+                  <div class="countdown-card">
+                    <span class="countdown-ring" id="countdownRing"><span id="countdownNumber">60</span></span>
+                  </div>
+                </div>
+                <div class="info-value-row">
+                  <span class="info-value code-value" id="codeValue">{% if code %}{{ code }}{% else %}<span class="ori-waiting">Dang lay ma...</span>{% endif %}</span>
+                  <button class="copy-btn code-copy-btn {% if not code %}hidden{% endif %}" id="copyCodeBtn" onclick="copyText('codeValue')">Sao chep</button>
+                </div>
+                <div class="code-refresh-info">
+                  <span class="refresh-icon"></span>
+                  <span>Ma tu dong cap nhat moi 60 giay</span>
+                </div>
+              </section>
+              <section class="instruction-block">
+                <h3>Huong dan nap</h3>
+                <ol>
+                  <li>Nhan <strong>Sao chep</strong> ma CDK</li>
+                  <li>Mo ung dung <strong>Duolingo</strong></li>
+                  <li>Vao <strong>Cai dat</strong> > <strong>Duolingo for Schools</strong></li>
+                  <li>Nhan ma CDK > <strong>Gui</strong></li>
+                </ol>
+              </section>
+              <div class="status-bar">
+                <span class="status-dot"></span>
+                <span id="statusText">Dang ket noi</span>
+              </div>
+            </div>
+          </div>
+          {% endif %}
+
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer"><p>Copyright 2026.</p></footer>
+</div>
+<div class="toast" id="toast">
+  <div class="toast-backdrop"></div>
+  <div class="toast-panel">
+    <span class="toast-icon">&#10003;</span>
+    <span id="toastText">Da sao chep!</span>
+  </div>
+</div>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f5f7fa;color:#1a1a2e;line-height:1.6;min-height:100vh}
+.hidden{display:none!important}
+.page-shell{max-width:560px;margin:0 auto;padding:0 16px 40px;min-height:100vh;display:flex;flex-direction:column}
+.site-header{display:flex;align-items:center;justify-content:space-between;padding:16px 0;border-bottom:1px solid #e8ecf0;margin-bottom:24px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit}
+.brand-mark{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#58cc02,#4cad00);color:#fff;font-weight:800;font-size:22px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(88,204,2,.3)}
+.brand strong{display:block;font-size:16px}
+.brand small{font-size:11px;color:#888}
+.live-badge{display:flex;align-items:center;gap:6px;padding:4px 12px;border-radius:12px;background:#fff0f0;color:#e74c3c;font-size:11px;font-weight:700}
+.live-dot{width:8px;height:8px;border-radius:50%;background:#e74c3c;animation:livePulse 1s infinite}
+@keyframes livePulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+.section-heading{text-align:center;margin-bottom:24px}
+.eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:2px;color:#58cc02;font-weight:600;margin-bottom:6px}
+.section-heading h1{font-size:22px;font-weight:700}
+.cdk-gate{text-align:center;padding:60px 20px;background:#fff;border-radius:16px;box-shadow:0 2px 12px rgba(0,0,0,.06)}
+.cdk-gate h2{font-size:18px;margin:16px 0 8px;color:#333}
+.cdk-gate p{color:#777;font-size:14px}
+.cdk-gate-icon{width:56px;height:56px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:28px;background:#f0f4ff;color:#4361ee}
+.cdk-gate-icon-error{background:#fee;color:#e74c3c}
+.cdk-gate-icon-warn{background:#fff8e1;color:#f39c12}
+.cdk-error-page{border:1px solid #f5c6cb}
+.activate-btn{margin-top:20px;padding:16px 48px;font-size:18px;font-weight:700;color:#fff;background:linear-gradient(135deg,#58cc02,#4cad00);border:none;border-radius:14px;cursor:pointer;box-shadow:0 4px 16px rgba(88,204,2,.3);transition:all .2s}
+.activate-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(88,204,2,.4)}
+.activate-btn:active{transform:scale(.97)}
+.recharge-form-card{background:#fff;border-radius:16px;padding:24px;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-top:16px}
+.cdk-summary{background:linear-gradient(135deg,#58cc02,#4cad00);color:#fff;padding:12px 20px;border-radius:12px;text-align:center;margin-bottom:4px;box-shadow:0 4px 12px rgba(88,204,2,.2)}
+.cdk-summary strong{font-size:15px}
+.info-block{padding:18px 0}
+.info-label{display:flex;align-items:center;gap:8px;margin-bottom:12px;font-size:14px;font-weight:600;color:#555}
+.info-icon{font-size:18px}
+.info-value-row{display:flex;align-items:center;gap:10px}
+.info-value{flex:1;font-size:26px;font-weight:700;font-family:'SF Mono','Courier New',monospace;letter-spacing:2px;color:#1a1a2e;padding:18px;background:#f0f4ff;border-radius:12px;min-height:64px;display:flex;align-items:center;justify-content:center;word-break:break-all;border:2px solid #d4deff}
+.code-value{color:#4361ee;font-size:32px;letter-spacing:4px}
+.code-block-main{background:#fafbff;margin:0 -24px;padding:24px;border-top:2px solid #e8ecf0;border-bottom:2px solid #e8ecf0}
+.ori-waiting{font-size:15px;font-weight:400;color:rgba(0,0,0,.35);animation:blink 1.5s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:.4}50%{opacity:1}}
+.code-refresh-info{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:13px;color:#58cc02;font-weight:500}
+.refresh-icon{width:16px;height:16px;border:2px solid #58cc02;border-top-color:transparent;border-radius:50%;animation:spin 2s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.copy-btn{background:#f0f4ff;color:#4361ee;border:1px solid #d4deff;padding:10px 16px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;transition:all .2s}
+.copy-btn:hover{background:#4361ee;color:#fff}
+.code-copy-btn{background:#4361ee;color:#fff;border-color:#4361ee;padding:18px 24px;font-size:15px;border-radius:12px}
+.code-copy-btn:hover{background:#3a56d4}
+.countdown-card{margin-left:auto}
+.countdown-ring{display:inline-flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:50%;border:3px solid #58cc02;font-size:15px;font-weight:700;color:#58cc02;font-family:'SF Mono',monospace}
+.instruction-block{margin-top:20px;padding:20px;background:#f8faf0;border-radius:12px;border:1px solid #e8f0d8}
+.instruction-block h3{font-size:15px;margin-bottom:12px;color:#333}
+.instruction-block ol{padding-left:20px;font-size:14px;color:#555;line-height:1.8}
+.status-bar{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:20px;padding:10px;font-size:13px;color:#888}
+.status-dot{width:8px;height:8px;border-radius:50%;background:#2ecc71;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.8)}}
+.site-footer{text-align:center;padding:24px 0;margin-top:auto;font-size:12px;color:#aaa;border-top:1px solid #e8ecf0}
+.toast{position:fixed;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;z-index:9999;pointer-events:none;opacity:0;transition:opacity .3s}
+.toast.show{opacity:1}
+.toast-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.3)}
+.toast-panel{position:relative;background:#fff;padding:16px 28px;border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,.15);display:flex;align-items:center;gap:10px;font-size:15px;font-weight:500}
+.toast-icon{width:28px;height:28px;border-radius:50%;background:#58cc02;color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700}
+.code-flash{animation:codeFlash .8s ease}
+@keyframes codeFlash{0%{background:rgba(88,204,2,.3);border-color:#58cc02}100%{background:#f0f4ff;border-color:#d4deff}}
+@media(max-width:480px){.code-value{font-size:24px;letter-spacing:2px}.recharge-form-card{padding:16px}.code-block-main{margin:0 -16px;padding:16px}}
+</style>
+<script>
+var TOKEN = '{{ order.token }}';
+var REFRESH_INTERVAL = 5000;
+var countdownSeconds = 60;
+var countdownInterval = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+  {% if activated and not paused %}
+  startCountdown();
+  fetchData();
+  {% endif %}
+});
+
+function startActivation() {
+  var btn = document.getElementById('activateBtn');
+  btn.textContent = 'Dang kich hoat...';
+  btn.disabled = true;
+  var xhr = new XMLHttpRequest();
+  xhr.open('POST', '/api/activate/' + TOKEN, true);
+  xhr.onload = function() {
+    if (xhr.status === 200) { location.reload(); }
+    else { btn.textContent = 'Loi! Thu lai'; btn.disabled = false; }
+  };
+  xhr.onerror = function() { btn.textContent = 'Loi ket noi! Thu lai'; btn.disabled = false; };
+  xhr.send();
+}
+
+function resumeScraping() {
+  var btn = document.getElementById('resumeBtn');
+  btn.textContent = 'Dang ket noi lai...';
+  btn.disabled = true;
+  var xhr = new XMLHttpRequest();
+  xhr.open('POST', '/api/resume/' + TOKEN, true);
+  xhr.onload = function() {
+    if (xhr.status === 200) { location.reload(); }
+    else { btn.textContent = 'Loi! Thu lai'; btn.disabled = false; }
+  };
+  xhr.send();
+}
+
+function startCountdown() {
+  var ring = document.getElementById('countdownRing');
+  var num = document.getElementById('countdownNumber');
+  if (!ring || !num) return;
+  if (countdownInterval) clearInterval(countdownInterval);
+  countdownInterval = setInterval(function() {
+    countdownSeconds--;
+    if (countdownSeconds <= 0) {
+      countdownSeconds = 60;
+      num.textContent = '60';
+      ring.style.borderColor = '#58cc02';
+      ring.style.color = '#58cc02';
+      document.getElementById('statusText').textContent = 'Dang lay ma moi...';
+      return;
+    }
+    num.textContent = countdownSeconds;
+    if (countdownSeconds <= 10) { ring.style.borderColor = '#e74c3c'; ring.style.color = '#e74c3c'; }
+    else if (countdownSeconds <= 20) { ring.style.borderColor = '#f39c12'; ring.style.color = '#f39c12'; }
+    else { ring.style.borderColor = '#58cc02'; ring.style.color = '#58cc02'; }
+  }, 1000);
+}
+
+function copyText(elementId) {
+  var el = document.getElementById(elementId);
+  if (!el) return;
+  var text = '';
+  if (el.children.length > 0) {
+    for (var i = 0; i < el.children.length; i++) {
+      if (el.children[i].className.indexOf('ori-waiting') === -1) { text = el.children[i].textContent.trim(); break; }
+    }
+  } else { text = el.textContent.trim(); }
+  if (!text || text === 'Dang lay ma...') { showToast('Chua co ma'); return; }
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(function() { showToast('Da sao chep!'); }).catch(function() { fallbackCopy(text); });
+  } else { fallbackCopy(text); }
+}
+
+function fallbackCopy(text) {
+  var ta = document.createElement('textarea');
+  ta.value = text; ta.style.position = 'fixed'; ta.style.left = '-999999px';
+  document.body.appendChild(ta); ta.focus(); ta.select();
+  try { document.execCommand('copy'); showToast('Da sao chep!'); } catch(e) { showToast('Loi'); }
+  document.body.removeChild(ta);
+}
+
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  document.getElementById('toastText').textContent = msg;
+  t.classList.add('show');
+  setTimeout(function() { t.classList.remove('show'); }, 1800);
+}
+
+function fetchData() {
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', '/api/code/' + TOKEN, true);
+  xhr.onload = function() {
+    if (xhr.status === 200) {
+      var data = JSON.parse(xhr.responseText);
+      if (data.status === 'expired' || data.status === 'cancelled') { location.reload(); return; }
+      if (data.status === 'paused') { location.reload(); return; }
+      var codeEl = document.getElementById('codeValue');
+      var copyBtn = document.getElementById('copyCodeBtn');
+      if (data.code && codeEl) {
+        var cur = codeEl.textContent.trim();
+        if (cur !== data.code && cur !== 'Dang lay ma...') {
+          codeEl.textContent = data.code;
+          codeEl.classList.add('code-flash');
+          setTimeout(function() { codeEl.classList.remove('code-flash'); }, 1000);
+          if (copyBtn) copyBtn.classList.remove('hidden');
+          countdownSeconds = 60;
+          showToast('Ma moi!');
+        } else if (cur === 'Dang lay ma...') {
+          codeEl.textContent = data.code;
+          if (copyBtn) copyBtn.classList.remove('hidden');
+          countdownSeconds = 60;
+        }
+      }
+      document.getElementById('statusText').textContent = data.code ? 'Ma da san sang' : 'Dang ket noi...';
+    }
+  };
+  xhr.onerror = function() { document.getElementById('statusText').textContent = 'Mat ket noi...'; };
+  xhr.send();
+}
+
+setInterval(fetchData, REFRESH_INTERVAL);
+</script>
+{% endblock %}

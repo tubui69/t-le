@@ -1,0 +1,9 @@
+flask==3.0.0
+flask-sqlalchemy==3.1.1
+apscheduler==3.10.4
+requests==2.31.0
+beautifulsoup4==4.12.2
+playwright==1.40.0
+gunicorn==21.2.0
+python-telegram-bot==20.7
+paramiko==3.4.0

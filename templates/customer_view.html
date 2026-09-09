@@ -1,0 +1,434 @@
+{% extends "base.html" %}
+{% block title %}Nạp Super/Max — Lấy mã xác thực{% endblock %}
+{% block body %}
+<div class="page-shell">
+  <header class="site-header">
+    <a class="brand" href="#" aria-label="Super/Max">
+      <span class="brand-mark">D</span>
+      <span>
+        <strong>super/max</strong>
+        <small>Dịch vụ nạp mã chuyên nghiệp</small>
+      </span>
+    </a>
+    <div class="header-actions">
+      <div class="lang-badge">🇻🇳 Tiếng Việt</div>
+    </div>
+  </header>
+
+  <main>
+    <section class="method-section" aria-labelledby="methods-title">
+      <div class="section-heading">
+        <p class="eyebrow">Mã xác thực</p>
+        <h1 id="methods-title">Nhận mã nạp Super/Max</h1>
+      </div>
+
+      <div class="recharge-layout">
+        <div class="recharge-panel">
+
+          {% if cancelled is defined and cancelled %}
+          <section class="cdk-gate cdk-error-page">
+            <span class="cdk-gate-icon cdk-gate-icon-error">✕</span>
+            <h2>Đơn hàng đã bị hủy</h2>
+            <p>Vui lòng liên hệ người bán để biết thêm chi tiết.</p>
+          </section>
+
+          {% elif expired is defined and expired %}
+          <section class="cdk-gate cdk-error-page">
+            <span class="cdk-gate-icon cdk-gate-icon-warn">⏰</span>
+            <h2>Liên kết đã hết hạn</h2>
+            <p>Vui lòng liên hệ người bán để được hỗ trợ cấp mã mới.</p>
+          </section>
+
+          {% else %}
+
+          <section class="cdk-gate" id="cdkLoadingView">
+            <span class="cdk-gate-icon cdk-gate-spinner"></span>
+            <h2>Đang kiểm tra mã CDK</h2>
+            <p>Vui lòng đợi, hệ thống đang xác nhận liên kết...</p>
+          </section>
+
+          <div id="codeDisplaySection" class="hidden">
+
+            <div class="cdk-summary">
+              <strong>Duolingo Super — Mã xác thực</strong>
+            </div>
+
+            <div class="recharge-form-card">
+
+              <section class="info-block" id="phoneBlock">
+                <div class="info-label">
+                  <span>📱</span>
+                  <span>Số điện thoại</span>
+                </div>
+                <div class="info-value-row">
+                  <span class="info-value phone-value" id="phoneValue">
+                    {% if phone %}{{ phone }}{% else %}
+                    <span class="ori-waiting">Đang lấy...</span>
+                    {% endif %}
+                  </span>
+                  <button class="copy-btn {% if not phone %}hidden{% endif %}" id="copyPhoneBtn" onclick="copyText('phoneValue')">
+                    Sao chép
+                  </button>
+                </div>
+              </section>
+
+              <section class="info-block code-block" id="codeBlock">
+                <div class="info-label">
+                  <span>🔑</span>
+                  <span>Mã xác thực</span>
+                  <div class="countdown-card">
+                    <span class="countdown-ring" id="countdownRing">
+                      <span id="countdownNumber">300</span>
+                    </span>
+                  </div>
+                </div>
+                <div class="info-value-row">
+                  <span class="info-value code-value" id="codeValue">
+                    {% if code %}{{ code }}{% else %}
+                    <span class="ori-waiting">Đang lấy...</span>
+                    {% endif %}
+                  </span>
+                  <button class="copy-btn code-copy-btn {% if not code %}hidden{% endif %}" id="copyCodeBtn" onclick="copyText('codeValue')">
+                    Sao chép
+                  </button>
+                </div>
+              </section>
+
+              <section class="instruction-block">
+                <h3>📋 Hướng dẫn sử dụng</h3>
+                <ol>
+                  <li>Sao chép <strong>số điện thoại</strong> ở trên</li>
+                  <li>Mở ứng dụng Duolingo, đổi vùng quốc gia thành <strong>+1 (Mỹ)</strong></li>
+                  <li>Nhập số điện thoại và gửi yêu cầu mã xác minh</li>
+                  <li>Quay lại đây, sao chép <strong>mã xác thực</strong></li>
+                  <li>Nhập mã vào ứng dụng Duolingo để hoàn tất</li>
+                </ol>
+                <p class="instruction-note">💡 Nếu không nhận được mã, vui lòng thử gửi lại từ ứng dụng.</p>
+              </section>
+
+              <div class="status-bar">
+                <span class="status-dot"></span>
+                <span id="statusText">Đang kết nối — tự động cập nhật</span>
+              </div>
+
+            </div>
+          </div>
+
+          {% endif %}
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>Copyright © 2026 Super/Max. All rights reserved.</p>
+  </footer>
+</div>
+
+<div class="toast" id="toast">
+  <div class="toast-backdrop"></div>
+  <div class="toast-panel">
+    <span class="toast-icon">✓</span>
+    <span id="toastText">Đã sao chép!</span>
+  </div>
+</div>
+
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: #f5f7fa; color: #1a1a2e; line-height: 1.6; min-height: 100vh;
+  }
+  .hidden { display: none !important; }
+  .page-shell {
+    max-width: 560px; margin: 0 auto; padding: 0 16px 40px;
+    min-height: 100vh; display: flex; flex-direction: column;
+  }
+  .site-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 0; border-bottom: 1px solid #e8ecf0; margin-bottom: 24px;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: inherit; }
+  .brand-mark {
+    width: 40px; height: 40px; border-radius: 10px;
+    background: linear-gradient(135deg, #58cc02, #4cad00);
+    color: white; font-weight: 800; font-size: 22px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 2px 8px rgba(88,204,2,0.3);
+  }
+  .brand strong { display: block; font-size: 16px; color: #1a1a2e; }
+  .brand small { font-size: 11px; color: #888; }
+  .header-actions { display: flex; align-items: center; gap: 8px; }
+  .lang-badge {
+    font-size: 12px; padding: 4px 10px; background: #f0f4ff;
+    border-radius: 12px; color: #4361ee; font-weight: 500;
+  }
+  .section-heading { text-align: center; margin-bottom: 24px; }
+  .eyebrow {
+    font-size: 12px; text-transform: uppercase; letter-spacing: 2px;
+    color: #58cc02; font-weight: 600; margin-bottom: 6px;
+  }
+  .section-heading h1 { font-size: 22px; font-weight: 700; color: #1a1a2e; }
+  .cdk-gate {
+    text-align: center; padding: 60px 20px; background: white;
+    border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  }
+  .cdk-gate h2 { font-size: 18px; margin: 16px 0 8px; color: #333; }
+  .cdk-gate p { color: #777; font-size: 14px; }
+  .cdk-gate-icon {
+    width: 56px; height: 56px; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 28px; background: #f0f4ff; color: #4361ee;
+  }
+  .cdk-gate-icon-error { background: #fee; color: #e74c3c; }
+  .cdk-gate-icon-warn { background: #fff8e1; color: #f39c12; }
+  .cdk-gate-spinner {
+    border: 3px solid #e8ecf0; border-top-color: #58cc02; border-radius: 50%;
+    width: 48px; height: 48px; animation: spin 0.8s linear infinite;
+    font-size: 0; background: transparent;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .cdk-error-page { border: 1px solid #f5c6cb; }
+  .recharge-layout { flex: 1; }
+  .recharge-panel { width: 100%; }
+  .recharge-form-card {
+    background: white; border-radius: 16px; padding: 24px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06); margin-top: 16px;
+  }
+  .cdk-summary {
+    background: linear-gradient(135deg, #58cc02, #4cad00);
+    color: white; padding: 12px 20px; border-radius: 12px;
+    text-align: center; margin-bottom: 4px;
+    box-shadow: 0 4px 12px rgba(88,204,2,0.2);
+  }
+  .cdk-summary strong { font-size: 15px; }
+  .info-block { padding: 18px 0; border-bottom: 1px solid #f0f2f5; }
+  .info-block:last-of-type { border-bottom: none; }
+  .info-label {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 10px; font-size: 14px; font-weight: 600; color: #555;
+  }
+  .info-value-row { display: flex; align-items: center; gap: 10px; }
+  .info-value {
+    flex: 1; font-size: 22px; font-weight: 700;
+    font-family: 'SF Mono', 'Courier New', monospace; letter-spacing: 1.5px;
+    color: #1a1a2e; padding: 14px 18px; background: #f8f9fa;
+    border-radius: 10px; min-height: 52px; display: flex;
+    align-items: center; word-break: break-all;
+  }
+  .phone-value { color: #2ecc71; background: #f0fff4; }
+  .code-value { color: #4361ee; background: #f0f4ff; font-size: 28px; letter-spacing: 3px; }
+  .code-block {
+    background: #fafbff; margin: 0 -24px; padding: 18px 24px;
+    border-top: 2px solid #e8ecf0; border-bottom: 2px solid #e8ecf0;
+  }
+  .ori-waiting {
+    font-size: 15px; font-weight: 400; color: rgba(0,0,0,0.35);
+    letter-spacing: 0; animation: blink 1.5s ease-in-out infinite;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+  @keyframes blink { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+  .copy-btn {
+    background: #f0f4ff; color: #4361ee; border: 1px solid #d4deff;
+    padding: 10px 16px; border-radius: 10px; font-size: 13px;
+    font-weight: 600; cursor: pointer; white-space: nowrap; transition: all 0.2s;
+  }
+  .copy-btn:hover { background: #4361ee; color: white; }
+  .copy-btn:active { transform: scale(0.95); }
+  .code-copy-btn {
+    background: #4361ee; color: white; border-color: #4361ee;
+    padding: 14px 20px; font-size: 14px;
+  }
+  .code-copy-btn:hover { background: #3a56d4; }
+  .countdown-card { margin-left: auto; }
+  .countdown-ring {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 44px; height: 44px; border-radius: 50%;
+    border: 3px solid #58cc02; font-size: 14px; font-weight: 700;
+    color: #58cc02; font-family: 'SF Mono', monospace;
+  }
+  .instruction-block {
+    margin-top: 20px; padding: 20px; background: #f8faf0;
+    border-radius: 12px; border: 1px solid #e8f0d8;
+  }
+  .instruction-block h3 { font-size: 15px; margin-bottom: 12px; color: #333; }
+  .instruction-block ol { padding-left: 20px; font-size: 14px; color: #555; line-height: 1.8; }
+  .instruction-block ol li { margin-bottom: 4px; }
+  .instruction-note {
+    margin-top: 12px; font-size: 13px; color: #888;
+    padding: 10px; background: #fff; border-radius: 8px;
+  }
+  .status-bar {
+    display: flex; align-items: center; justify-content: center;
+    gap: 8px; margin-top: 20px; padding: 10px; font-size: 13px; color: #888;
+  }
+  .status-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #2ecc71; animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.3; transform: scale(0.8); }
+  }
+  .site-footer {
+    text-align: center; padding: 24px 0; margin-top: auto;
+    font-size: 12px; color: #aaa; border-top: 1px solid #e8ecf0;
+  }
+  .toast {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 9999; pointer-events: none; opacity: 0; transition: opacity 0.3s;
+  }
+  .toast.show { opacity: 1; }
+  .toast-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.3); }
+  .toast-panel {
+    position: relative; background: white; padding: 16px 28px;
+    border-radius: 14px; box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+    display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 500;
+  }
+  .toast-icon {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: #58cc02; color: white;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700;
+  }
+  .code-flash { animation: codeFlash 1s ease; }
+  @keyframes codeFlash {
+    0% { background: rgba(88,204,2,0.2); }
+    100% { background: transparent; }
+  }
+  @media (max-width: 480px) {
+    .code-value { font-size: 22px; letter-spacing: 2px; }
+    .info-value { font-size: 18px; }
+    .recharge-form-card { padding: 16px; }
+    .code-block { margin: 0 -16px; padding: 18px 16px; }
+  }
+</style>
+
+<script>
+var TOKEN = '{{ order.token }}';
+var REFRESH_INTERVAL = 5000;
+var countdownSeconds = 300;
+var countdownInterval = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+  setTimeout(function() {
+    document.getElementById('cdkLoadingView').classList.add('hidden');
+    document.getElementById('codeDisplaySection').classList.remove('hidden');
+    startCountdown();
+  }, 2000);
+});
+
+function startCountdown() {
+  var ring = document.getElementById('countdownRing');
+  var num = document.getElementById('countdownNumber');
+  if (!ring || !num) return;
+  countdownInterval = setInterval(function() {
+    countdownSeconds--;
+    if (countdownSeconds <= 0) {
+      clearInterval(countdownInterval);
+      num.textContent = '0';
+      ring.style.borderColor = '#e74c3c';
+      ring.style.color = '#e74c3c';
+      document.getElementById('statusText').textContent = 'Liên kết đã hết hạn — vui lòng tải lại trang';
+      return;
+    }
+    num.textContent = countdownSeconds;
+    if (countdownSeconds <= 60) {
+      ring.style.borderColor = '#e74c3c';
+      ring.style.color = '#e74c3c';
+    } else if (countdownSeconds <= 120) {
+      ring.style.borderColor = '#f39c12';
+      ring.style.color = '#f39c12';
+    }
+  }, 1000);
+}
+
+function copyText(elementId) {
+  var el = document.getElementById(elementId);
+  if (!el) { showToast('Không tìm thấy dữ liệu'); return; }
+  var text = '';
+  if (el.children.length > 0) {
+    for (var i = 0; i < el.children.length; i++) {
+      if (el.children[i].className.indexOf('ori-waiting') === -1) {
+        text = el.children[i].textContent.trim();
+        break;
+      }
+    }
+  } else { text = el.textContent.trim(); }
+  if (!text || text === 'Đang lấy...') {
+    showToast('Chưa có dữ liệu để sao chép');
+    return;
+  }
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(function() {
+      showToast('Đã sao chép: ' + text);
+    }).catch(function() { fallbackCopy(text); });
+  } else { fallbackCopy(text); }
+}
+
+function fallbackCopy(text) {
+  var ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.left = '-999999px';
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  try {
+    document.execCommand('copy');
+    showToast('Đã sao chép: ' + text);
+  } catch (err) { showToast('Lỗi khi sao chép'); }
+  document.body.removeChild(ta);
+}
+
+function showToast(msg) {
+  var toast = document.getElementById('toast');
+  document.getElementById('toastText').textContent = msg;
+  toast.classList.add('show');
+  setTimeout(function() { toast.classList.remove('show'); }, 1800);
+}
+
+function fetchData() {
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', '/api/code/' + TOKEN, true);
+  xhr.onload = function() {
+    if (xhr.status === 200) {
+      var data = JSON.parse(xhr.responseText);
+      if (data.status === 'expired' || data.status === 'cancelled') { location.reload(); return; }
+      var phoneEl = document.getElementById('phoneValue');
+      var copyPhoneBtn = document.getElementById('copyPhoneBtn');
+      if (data.phone && phoneEl) {
+        var cur = phoneEl.textContent.trim();
+        if (cur !== data.phone) {
+          phoneEl.textContent = data.phone;
+          phoneEl.classList.add('code-flash');
+          setTimeout(function() { phoneEl.classList.remove('code-flash'); }, 1000);
+          if (copyPhoneBtn) copyPhoneBtn.classList.remove('hidden');
+        }
+      }
+      var codeEl = document.getElementById('codeValue');
+      var copyCodeBtn = document.getElementById('copyCodeBtn');
+      if (data.code && codeEl) {
+        var cur2 = codeEl.textContent.trim();
+        if (cur2 !== data.code) {
+          codeEl.textContent = data.code;
+          codeEl.classList.add('code-flash');
+          setTimeout(function() { codeEl.classList.remove('code-flash'); }, 1000);
+          if (copyCodeBtn) copyCodeBtn.classList.remove('hidden');
+          countdownSeconds = 300;
+          var ring = document.getElementById('countdownRing');
+          if (ring) { ring.style.borderColor = '#58cc02'; ring.style.color = '#58cc02'; }
+        }
+      }
+    }
+  };
+  xhr.onerror = function() {
+    document.getElementById('statusText').textContent = 'Mất kết nối — đang thử lại...';
+  };
+  xhr.send();
+}
+
+setInterval(fetchData, REFRESH_INTERVAL);
+</script>
+{% endblock %}

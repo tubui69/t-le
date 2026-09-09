@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+{% block title %}Trang lấy mã xác thực Xingtu{% endblock %}
+{% block body %}
+<div class="ori-content">
+    {% if cancelled is defined and cancelled %}
+        <div class="ori-alert">
+            <h2>Đơn hàng đã bị hủy</h2>
+            <p>Vui lòng liên hệ người bán để biết thêm chi tiết.</p>
+        </div>
+    {% elif expired is defined and expired %}
+        <div class="ori-alert">
+            <h2>Liên kết đã hết hạn</h2>
+            <p>Vui lòng liên hệ người bán để được hỗ trợ.</p>
+        </div>
+    {% else %}
+    <div class="ori-getphone">
+        <div class="ori-getphone-item ori-phone">
+            <span>Số điện thoại</span>
+            <span id="phone" class="ori-number">
+                {% if phone %}{{ phone }}{% else %}
+                <span class="ori-waiting">Đang lấy...</span>
+                {% endif %}
+            </span>
+            <span class="ori-but {% if not phone %}ori-hide{% endif %}" id="copy-phone-btn" onclick="copyText('phone')">Sao chép</span>
+        </div>
+        <div class="ori-getphone-item ori-phone">
+            <span>Mã xác thực</span>
+            <span id="msgcode" class="ori-number">
+                {% if code %}{{ code }}{% else %}
+                <span class="ori-waiting">Đang lấy...</span>
+                {% endif %}
+            </span>
+            <span class="ori-but ori-codemsg {% if not code %}ori-hide{% endif %}" id="copy-code-btn" onclick="copyText('msgcode')">Sao chép</span>
+        </div>
+    </div>
+
+    <div class="ori-centerdesc">
+        <span class="ori-video1">Trang tự động cập nhật mỗi 5 giây</span>
+    </div>
+
+    <div class="ori-desc">
+        <div class="ori-desc-title">Xem hướng dẫn bên dưới</div>
+        <div class="ori-desc-content">
+            1. Sao chép số điện thoại từ liên kết để truy cập ứng dụng.<br>
+            2. Trong phần mềm Xingtu, hãy thay đổi +86 thành +1 (Mỹ) rồi gửi mã xác minh.<br>
+            3. Làm mới liên kết vài lần; mã xác minh sẽ hiện ra.<br><br>
+            Nếu bạn vẫn chưa nhận được mã xác minh, vui lòng gửi lại mã qua ứng dụng.
+        </div>
+    </div>
+
+    <div class="ori-tutorial-img">
+        <img src="https://cdn.upanhlaylink.com/i/L1ELG1Co.png" alt="Hướng dẫn" />
+    </div>
+
+    <div class="ori-status-bar" id="statusBar">
+        <span class="ori-spinner-sm" id="statusSpinner"></span>
+        <span id="statusText">Đang kết nối — tự động cập nhật</span>
+    </div>
+
+    {% endif %}
+</div>
+
+<div class="ori-toast" id="toast">Đã sao chép!</div>
+
+<style>
+    body { background: #f5f5f5; min-height: 100vh; margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    .ori-content { padding: 10px; max-width: 500px; margin: 0 auto; }
+    .ori-alert { text-align: center; color: #C22849; padding: 40px 15px; background: white; border-radius: 5px; margin-top: 20px; }
+    .ori-alert h2 { margin-bottom: 10px; }
+    .ori-getphone { background: #549CE4; padding: 7px; border-radius: 5px; font-size: 15px; margin-top: 13px; }
+    .ori-getphone-item { padding: 15px; color: #fff; font-size: 16px; }
+    .ori-phone { margin: 5px 0; display: flex; align-items: center; justify-content: space-between; }
+    .ori-phone span { display: block; }
+    .ori-number { width: 50%; font-weight: bold; font-size: 18px; letter-spacing: 1px; min-height: 24px; display: flex; align-items: center; }
+    .ori-but { background: #fff; padding: 8px 20px; color: #1E88E5; border-radius: 3px; font-weight: bold; cursor: pointer; user-select: none; white-space: nowrap; }
+    .ori-but:active { opacity: 0.7; }
+    .ori-hide { display: none !important; }
+    .ori-waiting { font-size: 15px; font-weight: 400; color: rgba(255,255,255,0.6); letter-spacing: 0; animation: ori-blink 1.5s ease-in-out infinite; }
+    @keyframes ori-blink { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+    .ori-spinner-sm { width: 14px; height: 14px; border: 2px solid rgba(46,204,113,0.3); border-top-color: #2ecc71; border-radius: 50%; animation: ori-spin 0.8s linear infinite; display: inline-block; }
+    @keyframes ori-spin { to { transform: rotate(360deg); } }
+    .ori-centerdesc { font-size: 16px; margin-top: 13px; line-height: 1.7; text-align: center; }
+    .ori-video1 { font-size: 17px; color: #D84315; font-weight: bold; }
+    .ori-desc { background: #E3F2FD; padding: 12px 7px; text-align: center; border-radius: 5px; color: #BF360C; font-size: 15px; margin-top: 13px; line-height: 1.7; font-weight: 500; }
+    .ori-desc-title { font-weight: bold; font-size: 20px; color: #D84315; }
+    .ori-desc-content { font-size: 15px; color: #BF360C; margin-top: 10px; line-height: 1.8; text-align: left; padding: 0 10px; }
+    .ori-tutorial-img { margin-top: 13px; text-align: center; }
+    .ori-tutorial-img img { max-width: 100%; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.13); }
+    .ori-status-bar { text-align: center; margin-top: 15px; padding: 10px; font-size: 13px; color: #888; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .ori-status-bar.stopped .ori-spinner-sm { display: none; }
+    .ori-status-bar.stopped { color: #2ecc71; font-weight: 500; }
+    .ori-toast { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.75); color: white; padding: 14px 28px; border-radius: 8px; font-size: 15px; z-index: 9999; display: none; pointer-events: none; }
+    .ori-toast.show { display: block; animation: ori-fade 1.5s ease; }
+    @keyframes ori-fade { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); } 20% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 80% { opacity: 1; } 100% { opacity: 0; } }
+    .ori-flash { animation: ori-code-flash 1s ease; }
+    @keyframes ori-code-flash { 0% { background: rgba(255,255,255,0.5); } 100% { background: transparent; } }
+</style>
+
+<script>
+var TOKEN = '{{ order.token }}';
+var REFRESH_INTERVAL = 5000;
+var codeReceived = {{ 'true' if code else 'false' }};
+var pollTimer = null;
+
+function copyText(elementId) {
+    var el = document.getElementById(elementId);
+    if (!el) { showToast('Không tìm thấy dữ liệu'); return; }
+    var text = '';
+    if (el.children.length > 0) {
+        for (var i = 0; i < el.children.length; i++) {
+            if (el.children[i].className !== 'ori-waiting') {
+                text = el.children[i].textContent.trim();
+                break;
+            }
+        }
+    } else { text = el.textContent.trim(); }
+    if (!text || text.length < 3 || text === 'Đang lấy...') {
+        showToast('Chưa có dữ liệu để sao chép');
+        return;
+    }
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(function() { showToast('Đã sao chép: ' + text); }).catch(function() { fallbackCopy(text); });
+    } else { fallbackCopy(text); }
+}
+
+function fallbackCopy(text) {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.left = '-999999px';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    try { document.execCommand('copy'); showToast('Đã sao chép: ' + text); } catch (err) { showToast('Lỗi khi sao chép'); }
+    document.body.removeChild(ta);
+}
+
+function showToast(msg) {
+    var toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.classList.remove('show');
+    void toast.offsetWidth;
+    toast.classList.add('show');
+    setTimeout(function() { toast.classList.remove('show'); }, 1500);
+}
+
+function stopPolling(msg) {
+    if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+    var statusBar = document.getElementById('statusBar');
+    var statusText = document.getElementById('statusText');
+    if (statusBar) statusBar.classList.add('stopped');
+    if (statusText) statusText.textContent = msg || 'Đã lấy mã thành công — dừng quét';
+}
+
+function fetchData() {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', '/api/code/' + TOKEN, true);
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            var data = JSON.parse(xhr.responseText);
+            if (data.status === 'expired' || data.status === 'cancelled') { location.reload(); return; }
+            var phoneEl = document.getElementById('phone');
+            var copyPhoneBtn = document.getElementById('copy-phone-btn');
+            if (data.phone && phoneEl) {
+                if (phoneEl.textContent.trim() !== data.phone) {
+                    phoneEl.textContent = data.phone;
+                    phoneEl.classList.add('ori-flash');
+                    setTimeout(function() { phoneEl.classList.remove('ori-flash'); }, 1000);
+                    if (copyPhoneBtn) copyPhoneBtn.classList.remove('ori-hide');
+                }
+            }
+            var codeEl = document.getElementById('msgcode');
+            var copyCodeBtn = document.getElementById('copy-code-btn');
+            if (data.code && codeEl) {
+                if (codeEl.textContent.trim() !== data.code) {
+                    codeEl.textContent = data.code;
+                    codeEl.classList.add('ori-flash');
+                    setTimeout(function() { codeEl.classList.remove('ori-flash'); }, 1000);
+                    if (copyCodeBtn) copyCodeBtn.classList.remove('ori-hide');
+                    showToast('Đã lấy mã xác thực: ' + data.code);
+                }
+                // Co ma roi → dừng quét
+                stopPolling('Đã lấy mã thành công — dừng quét');
+                return;
+            }
+            // Neu status la success/code_received → dừng
+            if (data.status === 'success' || data.status === 'code_received') {
+                stopPolling('Đã hoàn thành — mã đã được lưu');
+                return;
+            }
+        }
+    };
+    xhr.onerror = function() {
+        document.getElementById('statusText').textContent = 'Mất kết nối — đang thử lại...';
+    };
+    xhr.send();
+}
+
+// Nếu đã có mã sẵn → dừng quét ngay
+if (codeReceived) {
+    stopPolling('Đã có mã xác thực — dừng quét');
+} else {
+    pollTimer = setInterval(fetchData, REFRESH_INTERVAL);
+    // Gọi ngay lần đầu
+    fetchData();
+}
+</script>
+{% endblock %}

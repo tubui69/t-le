@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% block title %}Don #{{ order.id }} - {{ order.customer_name }}{% endblock %}
+{% block body %}
+<div class="container">
+    <header class="admin-header">
+        <h1>Don #{{ order.id }} - {{ order.customer_name }}</h1>
+        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline">Quay lai</a>
+    </header>
+
+    <div class="detail-grid">
+        <div class="card">
+            <h2>Thong tin</h2>
+            <div class="info-row">
+                <span class="label">Loai:</span>
+                <span class="type-badge type-{{ order.order_type }}">{{ order.type_display }}</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Trang thai:</span>
+                <span class="badge badge-{{ order.status }}">{{ order.status_display }}</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Khach:</span>
+                <span>{{ order.customer_name }}</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Ngay tao:</span>
+                <span>{{ order.created_at.strftime('%d/%m/%Y %H:%M') }}</span>
+            </div>
+            {% if order.expires_at %}
+            <div class="info-row">
+                <span class="label">Het han:</span>
+                <span>{{ order.expires_at.strftime('%d/%m/%Y %H:%M') }}</span>
+            </div>
+            {% endif %}
+            <div class="info-row">
+                <span class="label">Link KH:</span>
+                <div class="link-box">
+                    {% if order.order_type == 'duolingo' %}
+                    <input type="text" id="customer-link" readonly value="{{ request.host_url }}dl/{{ order.token }}">
+                    {% else %}
+                    <input type="text" id="customer-link" readonly value="{{ request.host_url }}xingtu/{{ order.token }}">
+                    {% endif %}
+                    <button onclick="copyLink()" class="btn btn-sm btn-primary" id="copy-btn">Copy</button>
+                </div>
+            </div>
+            {% if order.order_type == 'duolingo' %}
+            <div style="margin-top:8px;padding:8px;background:#e8f5e9;border-radius:8px;font-size:12px;color:#2e7d32;">
+                Quet khi khach bam "Bat dau kich hoat". Tu pause sau 20p.
+            </div>
+            {% endif %}
+            {% if order.order_type == 'xingtu' %}
+            <div style="margin-top:8px;padding:8px;background:#fff3e0;border-radius:8px;font-size:12px;color:#e65100;">
+                Quet SDT ngay. Quet ma khi khach vao link.
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="card">
+            <h2>Ma & SĐT hien tai</h2>
+            <div class="current-code">
+                {% if order.latest_code %}
+                    <div class="code-display">{{ order.latest_code }}</div>
+                {% else %}
+                    <div class="code-display code-empty">Chua co ma</div>
+                {% endif %}
+            </div>
+            {% if order.latest_phone %}
+            <div style="font-size:28px;font-weight:700;font-family:'Courier New',monospace;color:#2ecc71;padding:12px;background:#f0fff4;border-radius:10px;margin-top:12px;text-align:center;">
+                {{ order.latest_phone }}
+            </div>
+            {% endif %}
+            {% if order.codes %}
+            <small class="text-muted" style="display:block;text-align:center;margin-top:8px;">
+                Cap nhat: {{ order.codes[0].scraped_at.strftime('%H:%M:%S') }}
+            </small>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>URL trang goc</h2>
+        {% if order.status in ('pending', 'error') %}
+        <form method="POST" action="{{ url_for('admin_order_set_url', oid=order.id) }}">
+            <div class="form-group">
+                <label for="source_url">URL trang goc:</label>
+                <div class="url-input-row">
+                    <input type="url" id="source_url" name="source_url" value="{{ order.source_url or '' }}" placeholder="http://..." required>
+                    <button type="submit" class="btn btn-primary">Bat dau</button>
+                </div>
+            </div>
+        </form>
+        {% else %}
+        <p><code>{{ order.source_url or 'Chua co URL' }}</code></p>
+        {% endif %}
+    </div>
+
+    <div class="card">
+        <h2>Tac vu</h2>
+        <div class="action-buttons">
+            {% if order.status in ('scraping', 'paused') %}
+            <form method="POST" action="{{ url_for('admin_order_complete', oid=order.id) }}" style="display:inline">
+                <button type="submit" class="btn btn-success">Danh dau thanh cong</button>
+            </form>
+            <form method="POST" action="{{ url_for('admin_order_cancel', oid=order.id) }}" style="display:inline">
+                <button type="submit" class="btn btn-warning">Huy</button>
+            </form>
+            {% elif order.status in ('pending', 'error', 'expired', 'waiting_customer') %}
+            <form method="POST" action="{{ url_for('admin_order_cancel', oid=order.id) }}" style="display:inline">
+                <button type="submit" class="btn btn-warning">Huy don</button>
+            </form>
+            {% endif %}
+            <form method="POST" action="{{ url_for('admin_order_delete', oid=order.id) }}" style="display:inline" onsubmit="return confirm('Xoa don?')">
+                <button type="submit" class="btn btn-danger">Xoa</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Lich su ({{ codes|length }})</h2>
+        {% if codes %}
+        <table class="code-table">
+            <thead><tr><th>#</th><th>Ma</th><th>SĐT</th><th>Thoi gian</th></tr></thead>
+            <tbody>
+                {% for c in codes %}
+                <tr>
+                    <td>{{ c.id }}</td>
+                    <td>{% if c.code %}<code class="code-badge">{{ c.code }}</code>{% else %}--{% endif %}</td>
+                    <td>{% if c.phone %}<code class="code-badge" style="color:#2ecc71;">{{ c.phone }}</code>{% else %}--{% endif %}</td>
+                    <td>{{ c.scraped_at.strftime('%H:%M:%S') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="text-muted">Chua co du lieu.</p>
+        {% endif %}
+    </div>
+</div>
+<style>
+.type-badge{display:inline-block;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600}
+.type-xingtu{background:#fff3cd;color:#856404}
+.type-duolingo{background:#d4edda;color:#155724}
+</style>
+<script>
+function copyLink(){
+    var i=document.getElementById('customer-link');i.select();document.execCommand('copy');
+    var b=document.getElementById('copy-btn');b.textContent='Da copy!';
+    setTimeout(function(){b.textContent='Copy';},2000);
+}
+</script>
+{% endblock %}

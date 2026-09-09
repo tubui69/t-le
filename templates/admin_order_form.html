@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Chinh sua don' if order else 'Tao don moi' }}{% endblock %}
+{% block body %}
+<div class="container">
+    <header class="admin-header">
+        <h1>{{ 'Chinh sua don #' + order.id|string if order else 'Tao don moi' }}</h1>
+        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline">Quay lai</a>
+    </header>
+
+    <form method="POST" class="form-card">
+        <div class="form-group">
+            <label for="order_type">Loai don *</label>
+            <select id="order_type" name="order_type" required>
+                <option value="xingtu" {% if order and order.order_type == 'xingtu' %}selected{% endif %}>Xingtu — Ma xac minh</option>
+                <option value="duolingo" {% if order and order.order_type == 'duolingo' %}selected{% endif %}>Duolingo CDK — Ma nap Super</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="customer_name">Ten khach hang *</label>
+            <input type="text" id="customer_name" name="customer_name"
+                   value="{{ order.customer_name if order else '' }}"
+                   placeholder="Nhap ten khach hang" required autofocus>
+        </div>
+
+        <div class="form-group">
+            <label for="customer_phone">So dien thoai</label>
+            <input type="text" id="customer_phone" name="customer_phone"
+                   value="{{ order.customer_phone if order else '' }}"
+                   placeholder="Nhap so dien thoai (tuy chon)">
+        </div>
+
+        <div class="form-group">
+            <label for="note">Ghi chu</label>
+            <textarea id="note" name="note" rows="3"
+                      placeholder="Ghi chu ve don hang (tuy chon)">{{ order.note if order else '' }}</textarea>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                {{ 'Cap nhat' if order else 'Tao don' }}
+            </button>
+            <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline">Huy</a>
+        </div>
+    </form>
+</div>
+
+<style>
+select {
+    width: 100%; padding: 10px 14px; border: 1px solid #ddd;
+    border-radius: 8px; font-size: 14px; background: white;
+}
+</style>
+{% endblock %}
