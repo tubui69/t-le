@@ -37,6 +37,8 @@
                 <div class="link-box">
                     {% if order.order_type == 'duolingo' %}
                     <input type="text" id="customer-link" readonly value="{{ request.host_url }}dl/{{ order.token }}">
+                    {% elif order.order_type == 'wink' %}
+                    <input type="text" id="customer-link" readonly value="{{ request.host_url }}?token={{ order.token }}">
                     {% else %}
                     <input type="text" id="customer-link" readonly value="{{ request.host_url }}xingtu/{{ order.token }}">
                     {% endif %}
@@ -51,6 +53,11 @@
             {% if order.order_type == 'xingtu' %}
             <div style="margin-top:8px;padding:8px;background:#fff3e0;border-radius:8px;font-size:12px;color:#e65100;">
                 Quet SDT ngay. Quet ma khi khach vao link.
+            </div>
+            {% endif %}
+            {% if order.order_type == 'wink' %}
+            <div style="margin-top:8px;padding:8px;background:#fce4ec;border-radius:8px;font-size:12px;color:#c62828;">
+                Wink: Lay SDT (#phone) + Ma code (#phone-code). Tu dong quet khi co URL.
             </div>
             {% endif %}
         </div>
@@ -140,6 +147,7 @@
 .type-badge{display:inline-block;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600}
 .type-xingtu{background:#fff3cd;color:#856404}
 .type-duolingo{background:#d4edda;color:#155724}
+.type-wink{background:#fce4ec;color:#c62828}
 </style>
 <script>
 function copyLink(){
