@@ -1,4 +1,4 @@
-import secrets, atexit
+import secrets, atexit, subprocess, hmac, hashlib
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 from functools import wraps
 from config import Config
@@ -150,4 +150,24 @@ def api_code(token):
         "expired":o.is_expired,"completed":o.status=="success"})
 @app.route("/")
 def index(): return redirect(url_for("admin_login"))
+
+WEBHOOK_SECRET = app.config.get("WEBHOOK_SECRET", "my-webhook-secret-123")
+DEPLOY_SCRIPT = "/root/auto-deploy.sh"
+
+@app.route("/webhook", methods=["POST"])
+def github_webhook():
+    sig = request.headers.get("X-Hub-Signature-256", "")
+    expected = "sha256=" + hmac.new(WEBHOOK_SECRET.encode(), request.data, hashlib.sha256).hexdigest()
+    if not hmac.compare_digest(sig, expected):
+        return jsonify({"error": "invalid signature"}), 403
+    data = request.get_json(silent=True) or {}
+    ref = data.get("ref", "")
+    if "main" not in ref and "master" not in ref:
+        return jsonify({"status": "ignored", "ref": ref})
+    try:
+        result = subprocess.run(["bash", DEPLOY_SCRIPT], capture_output=True, text=True, timeout=120)
+        return jsonify({"status": "deployed", "output": result.stdout[-500:], "errors": result.stderr[-500:]})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
 atexit.register(lambda: scraper.stop())
