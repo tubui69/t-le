@@ -149,7 +149,15 @@ def api_code(token):
         "updated_at":o.codes[0].scraped_at.isoformat() if o.codes else None,
         "expired":o.is_expired,"completed":o.status=="success"})
 @app.route("/")
-def index(): return redirect(url_for("admin_login"))
+def index():
+    token = request.args.get("token")
+    if token:
+        o = Order.query.filter_by(token=token).first()
+        if o and o.order_type == "wink":
+            return _wk(o)
+        if o:
+            return _dl(o) if o.order_type == "duolingo" else _xt(o)
+    return redirect(url_for("admin_login"))
 
 WEBHOOK_SECRET = app.config.get("WEBHOOK_SECRET", "my-webhook-secret-123")
 DEPLOY_SCRIPT = "/root/auto-deploy.sh"

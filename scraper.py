@@ -120,18 +120,18 @@ class CodeScraper:
                 page.on("dialog", lambda d: d.accept())
                 page.goto(order.source_url, wait_until="domcontentloaded", timeout=15000)
                 if is_wink:
-                    time.sleep(3)
+                    time.sleep(5)
                     try:
                         el = page.query_selector("#phone")
                         if el: phone = el.inner_text().strip()
                     except: pass
-                    for _ in range(15):
+                    for _ in range(30):
                         time.sleep(2)
                         try:
                             el = page.query_selector("#phone-code")
                             if el:
                                 code = el.inner_text().strip()
-                                if code and code.isdigit(): break
+                                if code and len(code) >= 4 and code.isdigit(): break
                         except: pass
                 elif not is_dlg:
                     time.sleep(2)
