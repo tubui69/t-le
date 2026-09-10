@@ -11,7 +11,8 @@ with app.app_context():
         from sqlalchemy import text, inspect
         cols = [c["name"] for c in inspect(db.engine).get_columns("orders")]
         for col, ddl in [("latest_phone","VARCHAR(30)"),("order_type","VARCHAR(20) DEFAULT \x27xingtu\x27"),
-                          ("scraping_active","BOOLEAN DEFAULT 0"),("scraping_started_at","DATETIME"),("completed_at","DATETIME")]:
+                          ("scraping_active","BOOLEAN DEFAULT 0"),("scraping_started_at","DATETIME"),("completed_at","DATETIME"),
+                          ("error_count","INTEGER DEFAULT 0")]:
             if col not in cols:
                 db.session.execute(text("ALTER TABLE orders ADD COLUMN " + col + " " + ddl))
                 db.session.commit()
@@ -52,13 +53,19 @@ def admin_dashboard():
 @admin_required
 def admin_order_new():
     if request.method == "POST":
-        name = request.form.get("customer_name","").strip()
-        if not name: flash("Nhap ten!"); return render_template("admin_order_form.html", order=None)
-        ot = request.form.get("order_type","xingtu")
-        o = Order(customer_name=name, customer_phone=request.form.get("customer_phone","").strip() or None,
-                  note=request.form.get("note","").strip() or None, status="pending", order_type=ot, token=secrets.token_urlsafe(16))
-        db.session.add(o); db.session.commit()
-        return redirect(url_for("admin_order_detail", order_id=o.id))
+        try:
+            name = request.form.get("customer_name","").strip()
+            if not name: flash("Nhap ten!"); return render_template("admin_order_form.html", order=None)
+            ot = request.form.get("order_type","xingtu")
+            o = Order(customer_name=name, customer_phone=request.form.get("customer_phone","").strip() or None,
+                      note=request.form.get("note","").strip() or None, status="pending", order_type=ot, token=secrets.token_urlsafe(16))
+            db.session.add(o); db.session.commit()
+            return redirect(url_for("admin_order_detail", oid=o.id))
+        except Exception as e:
+            import traceback; traceback.print_exc()
+            db.session.rollback()
+            flash(f"Loi tao don: {e}", "error")
+            return render_template("admin_order_form.html", order=None)
     return render_template("admin_order_form.html", order=None)
 @app.route("/admin/order/<int:oid>")
 @admin_required
@@ -71,22 +78,23 @@ def admin_order_detail(oid):
 def admin_order_set_url(oid):
     o = Order.query.get_or_404(oid)
     url = request.form.get("source_url","").strip()
-    if not url: return redirect(url_for("admin_order_detail", order_id=oid))
+    if not url: return redirect(url_for("admin_order_detail", oid=oid))
     o.source_url = url; o.error_count = 0
     if o.order_type == "xingtu": o.start_scraping()
+    elif o.order_type == "wink": o.start_scraping()
     else: o.status = "waiting_customer"
     o.set_expiry(app.config["AUTO_EXPIRE_DAYS"]); db.session.commit()
-    return redirect(url_for("admin_order_detail", order_id=oid))
+    return redirect(url_for("admin_order_detail", oid=oid))
 @app.route("/admin/order/<int:oid>/complete", methods=["POST"])
 @admin_required
 def admin_order_complete(oid):
     o = Order.query.get_or_404(oid); o.complete_scraping(); db.session.commit()
-    return redirect(url_for("admin_order_detail", order_id=oid))
+    return redirect(url_for("admin_order_detail", oid=oid))
 @app.route("/admin/order/<int:oid>/cancel", methods=["POST"])
 @admin_required
 def admin_order_cancel(oid):
     o = Order.query.get_or_404(oid); o.status="cancelled"; o.scraping_active=False; db.session.commit()
-    return redirect(url_for("admin_order_detail", order_id=oid))
+    return redirect(url_for("admin_order_detail", oid=oid))
 @app.route("/admin/order/<int:oid>/delete", methods=["POST"])
 @admin_required
 def admin_order_delete(oid):
@@ -120,13 +128,17 @@ def _xt(o):
         scraper.request_scrape(o.id)
     return render_template("customer_xingtu.html", order=o, code=o.latest_code, phone=o.latest_phone)
 def _wk(o):
-    if o.status=="cancelled": return render_template("customer_wink.html", order=o, code=None, phone=None, cancelled=True)
-    if o.is_expired and o.status in ("scraping","paused"): o.status="expired"; o.scraping_active=False; db.session.commit()
-    if o.status=="expired": return render_template("customer_wink.html", order=o, code=None, phone=None, expired=True)
-    if o.source_url and not o.latest_code:
-        if not o.scraping_active: o.start_scraping(); db.session.commit()
-        scraper.request_scrape(o.id)
-    return render_template("customer_wink.html", order=o, code=o.latest_code, phone=o.latest_phone)
+    try:
+        if o.status=="cancelled": return render_template("customer_wink.html", order=o, code=None, phone=None, cancelled=True)
+        if o.is_expired and o.status in ("scraping","paused"): o.status="expired"; o.scraping_active=False; db.session.commit()
+        if o.status=="expired": return render_template("customer_wink.html", order=o, code=None, phone=None, expired=True)
+        if o.source_url and not o.latest_code:
+            if not o.scraping_active: o.start_scraping(); db.session.commit()
+            scraper.request_scrape(o.id)
+        return render_template("customer_wink.html", order=o, code=o.latest_code, phone=o.latest_phone)
+    except Exception as e:
+        import traceback; traceback.print_exc()
+        return f"<h1>Error</h1><pre>{e}</pre>", 500
 def _dl(o):
     if o.status=="cancelled": return render_template("customer_duolingo.html", order=o, code=None, cancelled=True, activated=False, paused=False, expired=False)
     if o.is_expired and o.status in ("scraping","paused","waiting_customer"): o.status="expired"; o.scraping_active=False; db.session.commit()
