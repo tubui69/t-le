@@ -6,127 +6,116 @@
 <title>WINK - Lay ma xac minh</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#f8f9fa;color:#333;font-family:'Inter','Segoe UI',Roboto,sans-serif;min-height:100vh}
-.wink-bg{position:fixed;top:0;left:0;right:0;bottom:0;background:#f8f9fa;z-index:-1}
-.wink-wrap{max-width:400px;margin:0 auto;padding:0 16px 40px}
-.wink-top{padding:24px 0 16px;text-align:center}
-.wink-logo{font-size:32px;font-weight:900;letter-spacing:8px;color:#ff6b35}
-.wink-logosub{font-size:11px;color:#999;letter-spacing:3px;margin-top:4px;text-transform:uppercase}
-.wink-hero{background:linear-gradient(135deg,#ff6b35,#ff8c42);border-radius:20px;padding:20px;text-align:center;margin:16px 0;position:relative;overflow:hidden;color:#fff}
-.wink-hero::after{content:'';position:absolute;top:-30px;right:-30px;width:80px;height:80px;background:rgba(255,255,255,0.15);border-radius:50%}
-.wink-hero-icon{font-size:28px;margin-bottom:6px}
-.wink-hero-title{font-size:16px;font-weight:700}
-.wink-hero-desc{font-size:12px;opacity:0.9;margin-top:4px}
-.wink-steps{display:flex;align-items:center;gap:8px;margin:16px 0}
-.wink-step{flex:1;background:#fff;border:1px solid #eee;border-radius:14px;padding:14px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.04)}
-.wink-step-num{width:26px;height:26px;border-radius:50%;background:#ff6b35;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;margin-bottom:8px}
-.wink-step-txt{font-size:11px;line-height:1.5;color:#666}
-.wink-step-arr{color:#ff6b35;font-size:18px;font-weight:bold;flex-shrink:0}
-.wink-notice{display:flex;align-items:center;gap:8px;background:#fff5eb;border:1px solid #ffe0c2;border-radius:10px;padding:10px 12px;margin-bottom:16px;font-size:11px;color:#e65100}
-.wink-notice-b{width:18px;height:18px;border-radius:50%;background:#ff6b35;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;flex-shrink:0}
-.wink-card{background:#fff;border:1px solid #eee;border-radius:16px;padding:20px;text-align:center;margin-bottom:12px;box-shadow:0 2px 12px rgba(0,0,0,0.04)}
-.wink-card:last-of-type{margin-bottom:16px}
-.wink-card-lb{font-size:10px;color:#999;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px}
-.wink-card-val{font-size:24px;font-weight:800;min-height:36px;display:flex;align-items:center;justify-content:center;margin-bottom:14px}
-.wink-phone{color:#ff6b35;letter-spacing:3px}
-.wink-code{color:#e65100;font-size:36px;letter-spacing:8px}
-.wink-wait{font-size:13px;color:#aaa;display:flex;align-items:center;gap:8px}
-.wink-sp{width:14px;height:14px;border:2px solid #ddd;border-top-color:#ff6b35;border-radius:50%;animation:wspin 0.8s linear infinite;display:inline-block}
+body{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.wk-card{background:#fff;border-radius:20px;max-width:420px;width:100%;padding:28px 24px;box-shadow:0 20px 60px rgba(0,0,0,0.15)}
+.wk-badge{text-align:center;margin-bottom:16px}
+.wk-badge span{display:inline-block;background:#f0faf0;color:#4caf50;font-size:12px;font-weight:600;padding:4px 16px;border-radius:20px;border:1px solid #c8e6c9}
+.wk-banner{background:linear-gradient(135deg,#ff8a00,#ff6b35);border-radius:14px;padding:18px 20px;display:flex;align-items:center;gap:14px;margin-bottom:20px;color:#fff}
+.wk-banner-code{font-size:28px;font-weight:900;letter-spacing:1px}
+.wk-banner-info{flex:1}
+.wk-banner-title{font-size:16px;font-weight:700}
+.wk-banner-sub{font-size:11px;opacity:0.9;margin-top:2px}
+.wk-row{display:flex;align-items:center;padding:14px 0;border-bottom:1px solid #f0f0f0}
+.wk-row:last-of-type{border-bottom:none}
+.wk-label{color:#999;font-size:14px;width:40px;flex-shrink:0}
+.wk-value{flex:1;font-size:18px;font-weight:700;color:#333;letter-spacing:1px}
+.wk-copy{background:none;border:1px solid #ddd;border-radius:8px;padding:6px 14px;font-size:12px;color:#666;cursor:pointer;display:flex;align-items:center;gap:4px;transition:all 0.2s;white-space:nowrap}
+.wk-copy:hover{border-color:#ff6b35;color:#ff6b35;background:#fff5f0}
+.wk-copy svg{width:14px;height:14px}
+.wk-btn-all{width:100%;padding:14px;border:none;border-radius:12px;background:linear-gradient(135deg,#ff8a00,#ff6b35);color:#fff;font-size:15px;font-weight:700;cursor:pointer;margin:16px 0;transition:all 0.2s;box-shadow:0 4px 15px rgba(255,107,53,0.3)}
+.wk-btn-all:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(255,107,53,0.4)}
+.wk-expire{text-align:center;font-size:13px;color:#999;margin-bottom:16px}
+.wk-expire b{color:#ff6b35}
+.wk-notice{background:#fff8e1;border:1px solid #ffe082;border-radius:12px;padding:14px 16px;margin-bottom:16px}
+.wk-notice-title{display:flex;align-items:center;gap:6px;font-size:13px;color:#f57f17;font-weight:600;margin-bottom:6px}
+.wk-notice-text{font-size:12px;color:#888;line-height:1.6}
+.wk-guide{background:#f9f9f9;border-radius:12px;padding:16px;margin-bottom:16px}
+.wk-guide-title{font-size:14px;font-weight:700;color:#333;margin-bottom:10px}
+.wk-guide-item{font-size:12px;color:#666;line-height:2;padding-left:4px}
+.wk-guide-item b{color:#ff6b35}
+.wk-status{display:flex;align-items:center;justify-content:center;gap:6px;padding:10px;font-size:11px;color:#bbb}
+.wk-dot{width:6px;height:6px;border-radius:50%;background:#4caf50;animation:wp 2s infinite}
+.wk-status.done .wk-dot{background:#ccc;animation:none}
+@keyframes wp{0%,100%{opacity:1}50%{opacity:0.3}}
+.wk-wait{color:#ccc;font-size:14px;font-weight:400}
+.wk-sp{width:12px;height:12px;border:2px solid #eee;border-top-color:#ff6b35;border-radius:50%;animation:wspin 0.8s linear infinite;display:inline-block;vertical-align:middle;margin-right:4px}
 @keyframes wspin{to{transform:rotate(360deg)}}
-.wink-btn{width:100%;padding:13px;border:none;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:1px;transition:all 0.2s}
-.wink-btn-p{background:#ff6b35;color:#fff;box-shadow:0 4px 15px rgba(255,107,53,0.25)}
-.wink-btn-p:hover{background:#e65100;transform:translateY(-2px);box-shadow:0 6px 20px rgba(255,107,53,0.35)}
-.wink-btn-p:active{transform:none}
-.wink-btn-y{background:#ff8c42;color:#fff;box-shadow:0 4px 15px rgba(255,140,66,0.25)}
-.wink-btn-y:hover{background:#ff6b35;transform:translateY(-2px);box-shadow:0 6px 20px rgba(255,140,66,0.35)}
-.wink-hidden{display:none!important}
-.wink-status{display:flex;align-items:center;gap:8px;padding:12px 14px;background:#fff;border:1px solid #eee;border-radius:10px;font-size:11px;color:#999}
-.wink-dot{width:7px;height:7px;border-radius:50%;background:#4caf50;animation:wpul 2s infinite;flex-shrink:0}
-.wink-status.done .wink-dot{background:#ccc;animation:none}
-@keyframes wpul{0%,100%{opacity:1}50%{opacity:0.3}}
-.wink-alert{text-align:center;padding:50px 20px;background:#fff;border:1px solid #eee;border-radius:16px;margin-top:40px}
-.wink-alert h2{color:#e65100;margin-bottom:8px;font-size:18px}
-.wink-alert p{color:#999;font-size:13px}
-.wink-toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(80px);background:#ff6b35;color:#fff;padding:12px 28px;border-radius:30px;font-size:13px;font-weight:700;opacity:0;transition:all 0.3s;z-index:9999;pointer-events:none;box-shadow:0 4px 20px rgba(255,107,53,0.3)}
-.wink-toast.show{transform:translateX(-50%) translateY(0);opacity:1}
-.wink-flash{animation:wf 0.6s ease}
-@keyframes wf{0%{background:rgba(255,107,53,0.15)}100%{background:transparent}}
-.wink-footer{text-align:center;padding:20px 0;font-size:10px;color:#ccc;letter-spacing:1px}
+.wk-hidden{display:none!important}
+.wk-alert{text-align:center;padding:40px 20px}
+.wk-alert h2{color:#e65100;font-size:18px;margin-bottom:8px}
+.wk-alert p{color:#999;font-size:13px}
+.wk-toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(80px);background:#333;color:#fff;padding:10px 24px;border-radius:25px;font-size:13px;opacity:0;transition:all 0.3s;z-index:9999;pointer-events:none}
+.wk-toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.wk-flash{animation:wf 0.5s ease}
+@keyframes wf{0%{background:#fff3e0}100%{background:transparent}}
 </style>
 </head>
 <body>
-<div class="wink-bg"></div>
-<div class="wink-wrap">
+<div class="wk-card">
 {% if cancelled is defined and cancelled %}
-<div class="wink-alert"><h2>Don hang da bi huy</h2><p>Vui long lien he nguoi ban.</p></div>
+<div class="wk-alert"><h2>Don hang da bi huy</h2><p>Vui long lien he nguoi ban.</p></div>
 {% elif expired is defined and expired %}
-<div class="wink-alert"><h2>Lien ket da het han</h2><p>Vui long lien he nguoi ban de duoc ho tro.</p></div>
+<div class="wk-alert"><h2>Lien ket da het han</h2><p>Vui long lien he nguoi ban de duoc ho tro.</p></div>
 {% else %}
 
-<div class="wink-top">
-    <div class="wink-logo">WINK</div>
-    <div class="wink-logosub">Xac minh tai khoan</div>
-</div>
+<div class="wk-badge"><span>30 ngay goi</span></div>
 
-<div class="wink-hero">
-    <div class="wink-hero-icon">&#128241;</div>
-    <div class="wink-hero-title">Lay ma xac minh Wink</div>
-    <div class="wink-hero-desc">Trang tu dong cap nhat moi 5 giay</div>
-</div>
-
-<div class="wink-steps">
-    <div class="wink-step">
-        <div class="wink-step-num">1</div>
-        <div class="wink-step-txt">Sao chep SDT<br>Mo app <b>Wink</b><br>Bam gui ma xac minh</div>
-    </div>
-    <div class="wink-step-arr">&#10132;</div>
-    <div class="wink-step">
-        <div class="wink-step-num">2</div>
-        <div class="wink-step-txt">Quay lai trang nay<br>Sao chep ma code<br>Dang nhap vao Wink</div>
+<div class="wk-banner">
+    <div class="wk-banner-code">+852</div>
+    <div class="wk-banner-info">
+        <div class="wk-banner-title">Wink - Hong Kong</div>
+        <div class="wk-banner-sub">Dang nhap vui long chon khu vuc +852</div>
     </div>
 </div>
 
-<div class="wink-notice">
-    <span class="wink-notice-b">!</span>
-    <span>Het han sau 5000 phut. Khong nhan duoc ma vui long lien he admin.</span>
+<div class="wk-row">
+    <span class="wk-label">So:</span>
+    <span class="wk-value" id="phone">{% if phone %}{{ phone }}{% else %}<span class="wk-wait"><span class="wk-sp"></span>Dang lay...</span>{% endif %}</span>
+    <button class="wk-copy {% if not phone %}wk-hidden{% endif %}" id="btn-phone" onclick="copyText('phone')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v3"/></svg> Sao chep</button>
 </div>
 
-<div class="wink-card">
-    <div class="wink-card-lb">So dien thoai</div>
-    <div class="wink-card-val" id="phone">
-        {% if phone %}<span class="wink-phone">{{ phone }}</span>
-        {% else %}<span class="wink-wait"><span class="wink-sp"></span> Dang lay...</span>{% endif %}
-    </div>
-    <button class="wink-btn wink-btn-p {% if not phone %}wink-hidden{% endif %}" id="btn-phone" onclick="copyText('phone')">SAO CHEP SDT</button>
+<div class="wk-row">
+    <span class="wk-label">Ma:</span>
+    <span class="wk-value" id="phone-code">{% if code %}{{ code }}{% else %}<span class="wk-wait"><span class="wk-sp"></span>Dang cho ma...</span>{% endif %}</span>
+    <button class="wk-copy {% if not code %}wk-hidden{% endif %}" id="btn-code" onclick="copyText('phone-code')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v3"/></svg> Sao chep</button>
 </div>
 
-<div class="wink-card">
-    <div class="wink-card-lb">Ma xac minh</div>
-    <div class="wink-card-val" id="phone-code">
-        {% if code %}<span class="wink-code">{{ code }}</span>
-        {% else %}<span class="wink-wait"><span class="wink-sp"></span> Dang cho ma...</span>{% endif %}
-    </div>
-    <button class="wink-btn wink-btn-y {% if not code %}wink-hidden{% endif %}" id="btn-code" onclick="copyText('phone-code')">SAO CHEP MA CODE</button>
+<button class="wk-btn-all" onclick="copyAll()">Mot click sao chep so + ma</button>
+
+<div class="wk-expire">Het han: <b id="expire-date">--</b></div>
+
+<div class="wk-notice">
+    <div class="wk-notice-title">&#9432; Luu y quan trong</div>
+    <div class="wk-notice-text">Uu tien dang nhap bang SDT + ma xac minh. Ma xac minh chi lay duoc 1 lan, co hieu luc 5 phut, dung gui lai nhieu lan.</div>
 </div>
 
-<div class="wink-status" id="statusBar">
-    <span class="wink-dot" id="statusDot"></span>
-    <span id="statusText">Dang ket noi — tu dong cap nhat</span>
+<div class="wk-guide">
+    <div class="wk-guide-title">Huong dan su dung:</div>
+    <div class="wk-guide-item">1. Thoat tai khoan hien tai khoi app Wink</div>
+    <div class="wk-guide-item">2. Chon dang nhap bang SDT</div>
+    <div class="wk-guide-item">3. Chon khu vuc <b>+852</b> - sau do sao chep SDT dang nhap</div>
+    <div class="wk-guide-item">4. Trong vong 5 phut su dung SDT de dang nhap</div>
+</div>
+
+<div class="wk-status" id="statusBar">
+    <span class="wk-dot"></span>
+    <span id="statusText">Tu dong cap nhat moi 5 giay</span>
 </div>
 
 {% endif %}
-
-<div class="wink-footer">WINK VERIFICATION SERVICE</div>
 </div>
-<div class="wink-toast" id="toast"></div>
+<div class="wk-toast" id="toast"></div>
 <script>
 var TOKEN='{{ order.token }}';var pollTimer=null;var hasCode={% if code %}true{% else %}false{% endif %};
 function copyText(id){var el=document.getElementById(id);if(!el)return;var t=el.textContent.trim();if(!t||t.indexOf('Dang')===0)return;if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){showToast('Da sao chep: '+t)}).catch(function(){fb(t)})}else fb(t)}
-function fb(t){var ta=document.createElement('textarea');ta.value=t;ta.style.position='fixed';ta.style.left='-9999px';document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand('copy');showToast('Da sao chep: '+t)}catch(e){showToast('Loi sao chep')}document.body.removeChild(ta)}
+function copyAll(){var p=document.getElementById('phone');var c=document.getElementById('phone-code');if(!p||!c)return;var pt=p.textContent.trim();var ct=c.textContent.trim();if(pt.indexOf('Dang')===0)return;var txt='SDT: '+pt+(ct.indexOf('Dang')!==0?' | Ma: '+ct:'');if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(function(){showToast('Da sao chep SDT + Ma')}).catch(function(){fb(txt)})}else fb(txt)}
+function fb(t){var ta=document.createElement('textarea');ta.value=t;ta.style.position='fixed';ta.style.left='-9999px';document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand('copy');showToast('Da sao chep')}catch(e){showToast('Loi')}document.body.removeChild(ta)}
 function showToast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.remove('show');void t.offsetWidth;t.classList.add('show');setTimeout(function(){t.classList.remove('show')},1500)}
 function stopPoll(msg){if(pollTimer){clearInterval(pollTimer);pollTimer=null}var b=document.getElementById('statusBar');var txt=document.getElementById('statusText');if(b)b.classList.add('done');if(txt)txt.textContent=msg||'Da lay ma thanh cong'}
-function fetchData(){var xhr=new XMLHttpRequest();xhr.open('GET','/api/code/'+TOKEN,true);xhr.onload=function(){if(xhr.status===200){var d=JSON.parse(xhr.responseText);if(d.status==='expired'||d.status==='cancelled'){location.reload();return}var pEl=document.getElementById('phone');var pBtn=document.getElementById('btn-phone');if(d.phone&&pEl){var cur=pEl.textContent.trim();if(cur.indexOf('Dang')===0||cur!==d.phone){pEl.innerHTML='<span class="wink-phone">'+d.phone+'</span>';pEl.classList.add('wink-flash');setTimeout(function(){pEl.classList.remove('wink-flash')},600);if(pBtn)pBtn.classList.remove('wink-hidden')}}var cEl=document.getElementById('phone-code');var cBtn=document.getElementById('btn-code');if(d.code&&cEl){var cu=cEl.textContent.trim();if(cu.indexOf('Dang')===0||cu!==d.code){cEl.innerHTML='<span class="wink-code">'+d.code+'</span>';cEl.classList.add('wink-flash');setTimeout(function(){cEl.classList.remove('wink-flash')},600);if(cBtn)cBtn.classList.remove('wink-hidden');showToast('Da lay ma Wink: '+d.code)}stopPoll('Da lay ma thanh cong');return}if(d.status==='success'){stopPoll('Da hoan thanh');return}}};xhr.onerror=function(){var t=document.getElementById('statusText');if(t)t.textContent='Mat ket noi — dang thu lai...'};xhr.send()}
-if(hasCode){stopPoll('Da co ma Wink — dung quet')}else{pollTimer=setInterval(fetchData,5000);fetchData()}
+function setExpire(){var d=new Date();d.setDate(d.getDate()+30);var s=d.toLocaleDateString('vi-VN');var el=document.getElementById('expire-date');if(el)el.textContent=s}
+setExpire();
+function fetchData(){var xhr=new XMLHttpRequest();xhr.open('GET','/api/code/'+TOKEN,true);xhr.onload=function(){if(xhr.status===200){var d=JSON.parse(xhr.responseText);if(d.status==='expired'||d.status==='cancelled'){location.reload();return}var pEl=document.getElementById('phone');var pBtn=document.getElementById('btn-phone');if(d.phone&&pEl){var cur=pEl.textContent.trim();if(cur.indexOf('Dang')===0||cur!==d.phone){pEl.textContent=d.phone;pEl.parentElement.classList.add('wk-flash');setTimeout(function(){pEl.parentElement.classList.remove('wk-flash')},500);if(pBtn)pBtn.classList.remove('wk-hidden')}}var cEl=document.getElementById('phone-code');var cBtn=document.getElementById('btn-code');if(d.code&&cEl){var cu=cEl.textContent.trim();if(cu.indexOf('Dang')===0||cu!==d.code){cEl.textContent=d.code;cEl.parentElement.classList.add('wk-flash');setTimeout(function(){cEl.parentElement.classList.remove('wk-flash')},500);if(cBtn)cBtn.classList.remove('wk-hidden');showToast('Ma Wink: '+d.code)}stopPoll('Da lay ma thanh cong');return}if(d.status==='success'){stopPoll('Da hoan thanh');return}}};xhr.onerror=function(){var t=document.getElementById('statusText');if(t)t.textContent='Mat ket noi...'};xhr.send()}
+if(hasCode){stopPoll('Da co ma — dung quet')}else{pollTimer=setInterval(fetchData,5000);fetchData()}
 </script>
 </body>
 </html>
