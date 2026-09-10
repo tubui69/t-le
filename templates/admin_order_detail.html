@@ -38,7 +38,7 @@
                     {% if order.order_type == 'duolingo' %}
                     <input type="text" id="customer-link" readonly value="{{ request.host_url }}dl/{{ order.token }}">
                     {% elif order.order_type == 'wink' %}
-                    <input type="text" id="customer-link" readonly value="{{ request.host_url }}?token={{ order.token }}">
+                    <input type="text" id="customer-link" readonly value="{{ request.host_url }}wink/?token={{ order.token }}">
                     {% else %}
                     <input type="text" id="customer-link" readonly value="{{ request.host_url }}xingtu/{{ order.token }}">
                     {% endif %}

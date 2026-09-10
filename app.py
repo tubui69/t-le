@@ -105,6 +105,12 @@ def customer_xingtu(token): return _xt(Order.query.filter_by(token=token).first_
 def customer_duolingo(token): return _dl(Order.query.filter_by(token=token).first_or_404())
 @app.route("/wink/<token>")
 def customer_wink(token): return _wk(Order.query.filter_by(token=token).first_or_404())
+@app.route("/wink/")
+def customer_wink_query():
+    token = request.args.get("token")
+    if not token: return redirect(url_for("admin_login"))
+    o = Order.query.filter_by(token=token).first_or_404()
+    return _wk(o)
 def _xt(o):
     if o.status=="cancelled": return render_template("customer_xingtu.html", order=o, code=None, phone=None, cancelled=True)
     if o.is_expired and o.status in ("scraping","paused"): o.status="expired"; o.scraping_active=False; db.session.commit()

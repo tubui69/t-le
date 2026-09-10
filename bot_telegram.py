@@ -21,7 +21,7 @@ def detect_type(url):
     return 'xingtu'
 def get_link(token, ot):
     if ot == 'duolingo': return f'{WEB}/dl/{token}'
-    if ot == 'wink': return f'{WEB}/?token={token}'
+    if ot == 'wink': return f'{WEB}/wink/?token={token}'
     return f'{WEB}/xingtu/{token}'
 def extract_urls(text):
     pat = r"https?://[^\s<>\[\](){}\"'`,;]+"
