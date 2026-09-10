@@ -112,6 +112,7 @@ class CodeScraper:
     def _scrape_order(self, order):
         from models import CodeHistory, db, now_vn
         is_dlg = (order.order_type == "duolingo")
+        is_wink = (order.order_type == "wink")
         with self._lock:
             page = self._browser.new_page()
             phone = None; code = None
@@ -156,7 +157,7 @@ class CodeScraper:
                 order.error_count = 0
             if not is_dlg and code:
                 order.complete_scraping()
-                logger.info(f"Order {order.id} Xingtu: DONE")
+                logger.info(f"Order {order.id} {order.order_type}: DONE")
 
     def _check_expiry(self):
         with self.app.app_context():

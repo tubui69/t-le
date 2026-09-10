@@ -12,12 +12,16 @@ engine = create_engine(DB); Session = sessionmaker(bind=engine)
 sys.path.insert(0, os.path.dirname(__file__))
 from models import Order, db
 DL_DOMAINS = ['dlg.llii.me']
+WINK_DOMAINS = ['wmrjkf.com']
 def detect_type(url):
     for d in DL_DOMAINS:
         if d in url.lower(): return 'duolingo'
+    for d in WINK_DOMAINS:
+        if d in url.lower(): return 'wink'
     return 'xingtu'
 def get_link(token, ot):
     if ot == 'duolingo': return f'{WEB}/dl/{token}'
+    if ot == 'wink': return f'{WEB}/wink/{token}'
     return f'{WEB}/xingtu/{token}'
 def extract_urls(text):
     pat = r"https?://[^\s<>\[\](){}\"'`,;]+"
@@ -42,7 +46,8 @@ async def cmd_start(update, ctx):
     t = ('\U0001f510 *Bot Lay Ma Tu Dong* \U0001f510\n\n'
          'Gui link -> Bot tao don va tra ve link lay ma.\n\n'
          '\U0001f989 Duolingo: `https://dlg.llii.me/idxx?k=ABC`\n'
-         '\U0001f511 Xingtu: `http://47.103.212.73/wap?key=ABC`\n\n'
+         '\U0001f511 Xingtu: `http://47.103.212.73/wap?key=ABC`\n'
+         '\U0001f4f1 Wink: `https://a.wmrjkf.com/url/xxx`\n\n'
          '\U0001f4ce Gui *nhieu link* trong 1 tin nhan!\n'
          '\U0001f4dd Loc link tu van ban.\n\n'
          '/help | /stats')
@@ -75,8 +80,8 @@ async def handle_msg(update, ctx):
     for url in urls:
         oid, link, ot = create_order(url, name)
         if oid:
-            ic = '\U0001f989' if ot == 'duolingo' else '\U0001f511'
-            lb = 'Duolingo' if ot == 'duolingo' else 'Xingtu'
+            ic = '\U0001f989' if ot == 'duolingo' else ('\U0001f4f1' if ot == 'wink' else '\U0001f511')
+            lb = 'Duolingo' if ot == 'duolingo' else ('Wink' if ot == 'wink' else 'Xingtu')
             await update.message.reply_text(
                 f'{ic} *{lb}* #{oid}\n`{url}`\n\U0001f310 {link}', parse_mode='Markdown')
         else:

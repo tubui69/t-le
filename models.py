@@ -46,7 +46,7 @@ class Order(db.Model):
 
     @property
     def type_display(self):
-        return {"xingtu":"Xingtu","duolingo":"Duolingo"}.get(self.order_type, self.order_type)
+        return {"xingtu":"Xingtu","duolingo":"Duolingo","wink":"Wink"}.get(self.order_type, self.order_type)
 
     def generate_token(self):
         self.token = secrets.token_urlsafe(16)

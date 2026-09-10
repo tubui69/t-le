@@ -45,7 +45,8 @@ def admin_dashboard():
     stats = {"total":Order.query.count(),"pending":Order.query.filter_by(status="pending").count(),
              "scraping":Order.query.filter_by(status="scraping").count(),"success":Order.query.filter_by(status="success").count(),
              "expired":Order.query.filter_by(status="expired").count(),
-             "xingtu":Order.query.filter_by(order_type="xingtu").count(),"duolingo":Order.query.filter_by(order_type="duolingo").count()}
+             "xingtu":Order.query.filter_by(order_type="xingtu").count(),"duolingo":Order.query.filter_by(order_type="duolingo").count(),
+             "wink":Order.query.filter_by(order_type="wink").count()}
     return render_template("admin_dashboard.html", orders=orders, stats=stats, current_filter=sf, current_type=tf)
 @app.route("/admin/order/new", methods=["GET","POST"])
 @admin_required
@@ -94,12 +95,16 @@ def admin_order_delete(oid):
 @app.route("/view/<token>")
 def customer_view(token):
     o = Order.query.filter_by(token=token).first_or_404()
-    return _dl(o) if o.order_type=="duolingo" else _xt(o)
+    if o.order_type=="duolingo": return _dl(o)
+    if o.order_type=="wink": return _wk(o)
+    return _xt(o)
 @app.route("/xingtu/<token>")
 def customer_xingtu(token): return _xt(Order.query.filter_by(token=token).first_or_404())
 @app.route("/duolingo/<token>")
 @app.route("/dl/<token>")
 def customer_duolingo(token): return _dl(Order.query.filter_by(token=token).first_or_404())
+@app.route("/wink/<token>")
+def customer_wink(token): return _wk(Order.query.filter_by(token=token).first_or_404())
 def _xt(o):
     if o.status=="cancelled": return render_template("customer_xingtu.html", order=o, code=None, phone=None, cancelled=True)
     if o.is_expired and o.status in ("scraping","paused"): o.status="expired"; o.scraping_active=False; db.session.commit()
@@ -108,6 +113,14 @@ def _xt(o):
         if not o.scraping_active: o.start_scraping(); db.session.commit()
         scraper.request_scrape(o.id)
     return render_template("customer_xingtu.html", order=o, code=o.latest_code, phone=o.latest_phone)
+def _wk(o):
+    if o.status=="cancelled": return render_template("customer_wink.html", order=o, code=None, phone=None, cancelled=True)
+    if o.is_expired and o.status in ("scraping","paused"): o.status="expired"; o.scraping_active=False; db.session.commit()
+    if o.status=="expired": return render_template("customer_wink.html", order=o, code=None, phone=None, expired=True)
+    if o.source_url and not o.latest_code:
+        if not o.scraping_active: o.start_scraping(); db.session.commit()
+        scraper.request_scrape(o.id)
+    return render_template("customer_wink.html", order=o, code=o.latest_code, phone=o.latest_phone)
 def _dl(o):
     if o.status=="cancelled": return render_template("customer_duolingo.html", order=o, code=None, cancelled=True, activated=False, paused=False, expired=False)
     if o.is_expired and o.status in ("scraping","paused","waiting_customer"): o.status="expired"; o.scraping_active=False; db.session.commit()
