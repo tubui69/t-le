@@ -78,13 +78,12 @@ select {
 (function(){
     var sel=document.getElementById('order_type');
     function toggleWink(){
-        var isWink=(sel.value==='wink'||sel.value==='wink_account');
+        var isWink=(sel.value==='wink'||sel.value==='wink_account'||sel.value==='meitu'||sel.value==='meitu_account');
         document.getElementById('wink-login-mode-group').style.display=isWink?'block':'none';
         document.getElementById('wink-agent-links-group').style.display=isWink?'block':'none';
-        // Auto set login_mode based on order_type
-        if(sel.value==='wink_account'){
+        if(sel.value==='wink_account'||sel.value==='meitu_account'){
             document.getElementById('login_mode').value='password_otp';
-        }else if(sel.value==='wink'){
+        }else if(sel.value==='wink'||sel.value==='meitu'){
             document.getElementById('login_mode').value='otp';
         }
     }

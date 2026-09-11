@@ -58,11 +58,11 @@ body{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);font-family:-app
 {% elif expired %}
 <div class="wk-alert"><h2>Don da het han</h2><p>Token da het han.</p></div>
 {% else %}
-<div class="wk-badge"><span>WINK ACCOUNT</span></div>
+<div class="wk-badge"><span>{{ 'MEITU ACCOUNT' if order.order_type in ('meitu','meitu_account') else 'WINK ACCOUNT' }}</span></div>
 <div class="wk-banner">
     <div class="wk-banner-code">W</div>
     <div class="wk-banner-info">
-        <div class="wk-banner-title">Wink - Dang nhap dai ly</div>
+        <div class="wk-banner-title">{{ 'Meitu' if order.order_type in ('meitu','meitu_account') else 'Wink' }} - Dang nhap dai ly</div>
         <div class="wk-banner-sub">{{ order.customer_name }} | {{ 'SDT + Mat khau + OTP' if login_mode == 'password_otp' else 'SDT + Ma OTP' }}</div>
     </div>
 </div>

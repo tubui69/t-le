@@ -114,6 +114,26 @@ class CodeScraper:
         is_dlg = (order.order_type == "duolingo")
         is_wink = order.order_type in ("wink", "wink_account", "meitu", "meitu_account")
         with self._lock:
+            # Check for Meitu API URL pattern
+            if is_wink and "104.250.159.50" in (order.source_url or ""):
+                try:
+                    import requests, re
+                    r = requests.get(order.source_url, timeout=10)
+                    if "No message" not in r.text:
+                        m = re.search(r'\d{6}', r.text)
+                        if m:
+                            code = m.group(0)
+                            if code != order.latest_code:
+                                order.latest_code = code
+                                db.session.add(CodeHistory(order_id=order.id, code=code, phone=order.latest_phone or "", scraped_at=now_vn()))
+                                order.error_count = 0
+                                order.complete_scraping()
+                                db.session.commit()
+                                logger.info(f"Order {order.id} API: code={code}")
+                except Exception as e:
+                    logger.error(f"Order {order.id} API error: {e}")
+                return
+
             page = self._browser.new_page()
             page.set_default_timeout(10000)
             # Chan tai anh/media/font de tai trang nhanh hon

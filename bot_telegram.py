@@ -125,9 +125,9 @@ async def handle_msg(update, ctx):
     uid = update.effective_user.id
     is_winkmk = uid in _winkmk_users
     # Tao order cho tung link, luu ket qua theo loai
-    results = {'xingtu': [], 'duolingo': [], 'wink': [], 'wink_account': []}
-    wink_urls = [u for u in urls if detect_type(u) == 'wink']
-    other_urls = [u for u in urls if detect_type(u) != 'wink']
+    results = {'xingtu': [], 'duolingo': [], 'wink': [], 'wink_account': [], 'meitu': [], 'meitu_account': []}
+    wink_urls = [u for u in urls if detect_type(u) in ('wink','meitu')]
+    other_urls = [u for u in urls if detect_type(u) not in ('wink','meitu')]
     # Che do winkmk: gop tat ca link wink thanh 1 order
     if is_winkmk and wink_urls:
         first_url = wink_urls[0]
@@ -154,9 +154,11 @@ async def handle_msg(update, ctx):
         'xingtu': '\U0001f511 Xingtu:',
         'duolingo': '\U0001f989 Duolingo:',
         'wink': '\U0001f4f1 Wink SDT+Ma:',
-        'wink_account': '\U0001f512 Wink SDT+MK+OTP:'
+        'wink_account': '\U0001f512 Wink SDT+MK+OTP:',
+        'meitu': '\U0001f3a8 Meitu SDT+Ma:',
+        'meitu_account': '\U0001f512 Meitu SDT+MK+OTP:'
     }
-    for ot_key in ['xingtu', 'duolingo', 'wink', 'wink_account']:
+    for ot_key in ['xingtu', 'duolingo', 'wink', 'wink_account', 'meitu', 'meitu_account']:
         items = results[ot_key]
         if not items:
             continue
