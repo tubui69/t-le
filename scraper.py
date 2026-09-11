@@ -145,8 +145,10 @@ class CodeScraper:
                 page.on("dialog", lambda d: d.accept())
                 page.goto(order.source_url, wait_until="domcontentloaded", timeout=10000)
                 if is_wink:
-                    # Wink login: SDT + ma xac nhan gui sau khi dang nhap
-                    # Buoc 1: lay SDT trong 2-5s, neu khong co -> fallback quet toan trang
+                    # Wink: SDT + ma xac nhan (ma gui sau khi dang nhap)
+                    # Trang goc dang chu thuong: "手机号: 18883484644 / 验证码: 776722"
+                    # -> phai quet chu (regex) chu khong chi doi #phone / #phone-code
+                    # Buoc 1: lay SDT - thu selector 5s, xong fallback quet chu ngay
                     try:
                         page.wait_for_selector("#phone", state="attached", timeout=5000)
                         el = page.query_selector("#phone")
@@ -158,30 +160,53 @@ class CodeScraper:
                                 if el: phone = el.inner_text().strip()
                     except Exception as e:
                         logger.warning(f"Order {order.id}: #phone not found after 5s: {e}")
-                    # Fallback selector khi #phone khong tim thay sau 5s: quet toan bo trang bang regex
+                    # Fallback: quet toan bo chu tren trang tim SDT (luon chay neu chua co phone)
                     if not phone:
                         try:
                             phone = page.evaluate("""() => {
                                 const el = document.querySelector('#phone');
                                 if (el && (el.innerText || '').trim().length >= 6) return (el.innerText || '').trim();
                                 const body = document.body.innerText || '';
-                                const m = body.match(/\\b(1[3-9]\\d{9}|852\\d{8})\\b/);
+                                // uu tien dong sau "手机号"
+                                let m = body.match(/手机号[\\s\\S]{0,30}(1[3-9]\\d{9}|852\\d{8})/);
+                                if (m) return m[1];
+                                m = body.match(/\\b(1[3-9]\\d{9}|852\\d{8})\\b/);
                                 return m ? m[0] : '';
                             }""")
                             if phone:
-                                logger.info(f"Order {order.id}: phone found via fallback regex: {phone}")
+                                logger.info(f"Order {order.id}: phone via text scan: {phone}")
                         except Exception: pass
-                    # Buoc 2: ma xac nhan gui sau khi dang nhap - cho toi da 30s
+                    # Buoc 2: ma xac nhan - thu selector, xong quet chu "验证码"
                     try:
                         page.wait_for_function(
                             "() => { const el = document.querySelector('#phone-code');"
                             " if (!el) return false;"
                             " const t = (el.innerText || '').trim();"
                             " return t.length >= 4 && /^[0-9]+$/.test(t); }",
-                            timeout=30000)
+                            timeout=5000)
                         el = page.query_selector("#phone-code")
                         if el: code = el.inner_text().strip()
                     except Exception: pass
+                    if not code:
+                        try:
+                            code = page.evaluate("""() => {
+                                const el = document.querySelector('#phone-code');
+                                if (el) {
+                                    const t = (el.innerText || '').trim();
+                                    if (t.length >= 4 && /^[0-9]+$/.test(t)) return t;
+                                }
+                                const body = document.body.innerText || '';
+                                // uu tien dong sau "验证码"
+                                let m = body.match(/验证码[\\s\\S]{0,30}(\\d{4,8})/);
+                                if (m) return m[1];
+                                return '';
+                            }""")
+                            if code:
+                                # bo truong hop lay nham SDT lam ma
+                                if code == phone: code = ""
+                                else: logger.info(f"Order {order.id}: code via text scan: {code}")
+                            if not code: code = None
+                        except Exception: pass
                 elif not is_dlg:
                     try:
                         page.wait_for_selector("#phone", state="attached", timeout=5000)
