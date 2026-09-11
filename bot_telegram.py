@@ -105,48 +105,44 @@ async def handle_msg(update, ctx):
         return
     name = f'TG: {update.effective_user.first_name or update.effective_user.username}'
     uid = update.effective_user.id
-    # Kiem tra che do winkmk
     is_winkmk = uid in _winkmk_users
-    # Loc link wink vs non-wink
     wink_urls = [u for u in urls if detect_type(u) == 'wink']
     other_urls = [u for u in urls if detect_type(u) != 'wink']
-    # Neu dang o che do winkmk va co link wink => tao 1 order voi nhieu link dai ly
+    lines = []
+    # Che do winkmk: gop tat ca link wink thanh 1 order
     if is_winkmk and wink_urls:
         first_url = wink_urls[0]
         extra = wink_urls[1:] if len(wink_urls) > 1 else None
         oid, link, ot = create_order(first_url, name, login_mode='password_otp', extra_urls=extra)
         if oid:
-            lb = 'Wink SDT+MK+OTP'
-            n_links = len(wink_urls)
-            msg = f'\U0001f512 *{lb}* #{oid}\n'
-            if n_links > 1:
-                msg += f'\U0001f4ce {n_links} link dai ly\n'
-            msg += f'\U0001f310 {link}'
-            await update.message.reply_text(msg, parse_mode='Markdown')
-            # Xoa user khoi che do winkmk sau khi tao don
+            n = len(wink_urls)
+            hdr = f'\U0001f512 Wink SDT+MK+OTP #{oid}' + (f' ({n} link)' if n > 1 else '')
+            lines.append(f'{hdr}\n{link}')
             _winkmk_users.discard(uid)
         else:
-            await update.message.reply_text('❌ Loi tao don Wink MK!', parse_mode='Markdown')
-        # Xu ly cac link khac (non-wink) binh thuong
+            lines.append('❌ Loi tao don Wink MK!')
+        # Link khac (non-wink) them vao cung tin nhan
         for url in other_urls:
             oid2, link2, ot2 = create_order(url, name)
             if oid2:
                 ic = '\U0001f989' if ot2 == 'duolingo' else '\U0001f511'
-                lb2 = 'Duolingo' if ot2 == 'duolingo' else 'Xingtu'
-                await update.message.reply_text(f'{ic} *{lb2}* #{oid2}\n`{url}`\n\U0001f310 {link2}', parse_mode='Markdown')
-        return
-    # Binh thuong: moi link tao 1 order rieng
-    if len(urls) > 1:
-        await update.message.reply_text(f'⏳ Tao *{len(urls)}* don...', parse_mode='Markdown')
-    for url in urls:
-        oid, link, ot = create_order(url, name)
-        if oid:
-            ic = '\U0001f989' if ot == 'duolingo' else ('\U0001f4f1' if ot in ('wink','wink_account') else '\U0001f511')
-            lb = 'Duolingo' if ot == 'duolingo' else ('Wink SDT+Ma' if ot == 'wink' else ('Wink SDT+MK+Ma' if ot == 'wink_account' else 'Xingtu'))
-            await update.message.reply_text(
-                f'{ic} *{lb}* #{oid}\n`{url}`\n\U0001f310 {link}', parse_mode='Markdown')
-        else:
-            await update.message.reply_text(f'❌ Loi: `{url}`', parse_mode='Markdown')
+                lb = 'Duolingo' if ot2 == 'duolingo' else 'Xingtu'
+                lines.append(f'{ic} {lb} #{oid2}\n{link2}')
+            else:
+                lines.append(f'❌ Loi: {url}')
+    else:
+        # Binh thuong: moi link 1 dong trong cung 1 tin nhan
+        for url in urls:
+            oid, link, ot = create_order(url, name)
+            if oid:
+                ic = '\U0001f989' if ot == 'duolingo' else ('\U0001f4f1' if ot in ('wink','wink_account') else '\U0001f511')
+                lb = 'Duolingo' if ot == 'duolingo' else ('Wink SDT+Ma' if ot == 'wink' else ('Wink SDT+MK+Ma' if ot == 'wink_account' else 'Xingtu'))
+                lines.append(f'{ic} {lb} #{oid}\n{link}')
+            else:
+                lines.append(f'❌ Loi: {url}')
+    # Gui 1 tin nhan duy nhat
+    msg = '\n\n'.join(lines)
+    await update.message.reply_text(msg, parse_mode='Markdown')
 async def on_error(update, ctx):
     logger.error(f'Error: {ctx.error}')
     if update and update.message: await update.message.reply_text('❌ Loi!')
