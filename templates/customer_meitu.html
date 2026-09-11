@@ -1,53 +1,54 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Tài khoản</title>
+<meta name="theme-color" content="#7b2ff7">
+<title>Tài khoản Meitu</title>
 <style>
 * { box-sizing: border-box; }
 body { background-color: #f5f5f5; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; display: flex; justify-content: center; padding: 20px 10px; margin: 0; min-height: 100vh; }
 .card { background: #fff; border-radius: 12px; max-width: 440px; width: 100%; border: 1px solid #e0e0e0; padding: 24px 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); position: relative; }
-.badge-top { display: block; padding: 6px 16px; border: 1px solid #c8e6c9; border-radius: 4px; color: #4caf50; font-size: 13px; font-weight: bold; text-align: center; margin: 0 auto 20px; background: #f0faf0; width: max-content; }
-.header-box { background: linear-gradient(90deg, #ff8a00, #ff6b35); border-radius: 10px; color: #fff; padding: 16px; display: flex; align-items: center; margin-bottom: 24px; box-shadow: 0 4px 10px rgba(255,107,53,0.3); }
+.badge-top { display: block; padding: 6px 16px; border: 1px solid #e1bee7; border-radius: 4px; color: #8e24aa; font-size: 13px; font-weight: bold; text-align: center; margin: 0 auto 20px; background: #faf5ff; width: max-content; }
+.header-box { background: linear-gradient(90deg, #7b2ff7, #f107a3); border-radius: 10px; color: #fff; padding: 16px; display: flex; align-items: center; margin-bottom: 24px; box-shadow: 0 4px 10px rgba(123,47,247,0.3); }
 .prefix-big { font-size: 32px; font-weight: bold; margin-right: 15px; text-shadow: 1px 1px 2px rgba(0,0,0,0.1); }
 .header-text h3 { margin: 0 0 4px 0; font-size: 16px; font-weight: bold; }
 .header-text p { margin: 0; font-size: 13px; opacity: 0.95; }
 .info-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px dashed #eee; }
 .info-label { color: #666; font-size: 15px; width: 90px; }
 .info-val { font-weight: bold; font-size: 16px; flex: 1; color: #333; }
-.btn-copy-small { color: #1890ff; background: none; border: none; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 4px; padding: 0; }
+.btn-copy-small { color: #7b2ff7; background: none; border: none; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 4px; padding: 0; }
 .btn-copy-small:hover { text-decoration: underline; }
 .btn-copy-small svg { width: 14px; height: 14px; }
-.btn-copy-large { width: 100%; background: #67c23a; color: #fff; border: none; padding: 12px; border-radius: 6px; font-size: 14px; font-weight: bold; margin: 15px 0 5px; cursor: pointer; transition: background 0.2s; box-shadow: 0 2px 6px rgba(103,194,58,0.3); }
-.btn-copy-large:hover { background: #5daf34; }
+.btn-copy-large { width: 100%; background: #8e24aa; color: #fff; border: none; padding: 12px; border-radius: 6px; font-size: 14px; font-weight: bold; margin: 15px 0 5px; cursor: pointer; transition: background 0.2s; box-shadow: 0 2px 6px rgba(142,36,170,0.3); }
+.btn-copy-large:hover { background: #7b1fa2; }
 .expire-row { padding: 12px 0; font-size: 15px; color: #666; display: flex; }
-.expire-row span { color: #4caf50; font-weight: bold; margin-left: 15px; }
-.warning-box { background: #fff8e1; border: 1px solid #ffe082; padding: 16px; border-radius: 8px; margin-bottom: 20px; margin-top: 10px; }
-.warning-box p { font-size: 13px; color: #d87a16; margin: 0 0 16px; line-height: 1.6; display: flex; gap: 6px; }
+.expire-row span { color: #8e24aa; font-weight: bold; margin-left: 15px; }
+.warning-box { background: #faf5ff; border: 1px solid #e1bee7; padding: 16px; border-radius: 8px; margin-bottom: 20px; margin-top: 10px; }
+.warning-box p { font-size: 13px; color: #8e24aa; margin: 0 0 16px; line-height: 1.6; display: flex; gap: 6px; }
 .warning-box p::before { content: "ⓘ"; font-weight: bold; font-size: 14px; }
-.btn-get-code { width: 100%; background: #e6a23c; color: #fff; border: none; padding: 14px; border-radius: 6px; font-size: 15px; font-weight: bold; cursor: pointer; margin-bottom: 12px; transition: background 0.2s; box-shadow: 0 2px 6px rgba(230,162,60,0.3); }
-.btn-get-code:hover { background: #d59132; }
+.btn-get-code { width: 100%; background: #7b2ff7; color: #fff; border: none; padding: 14px; border-radius: 6px; font-size: 15px; font-weight: bold; cursor: pointer; margin-bottom: 12px; transition: background 0.2s; box-shadow: 0 2px 6px rgba(123,47,247,0.3); }
+.btn-get-code:hover { background: #6a1fe0; }
 .btn-get-code:disabled { opacity: 0.7; cursor: not-allowed; }
-.btn-again { width: 100%; background: #fff; color: #e6a23c; border: 1px solid #e6a23c; padding: 11px; border-radius: 6px; font-size: 14px; font-weight: bold; cursor: pointer; margin-bottom: 12px; display: none; }
+.btn-again { width: 100%; background: #fff; color: #7b2ff7; border: 1px solid #7b2ff7; padding: 11px; border-radius: 6px; font-size: 14px; font-weight: bold; cursor: pointer; margin-bottom: 12px; display: none; }
 .btn-again.show { display: block; }
-.agent-box { background: #fff; border: 1px solid #ffe0cc; border-radius: 8px; padding: 14px; margin-bottom: 20px; }
-.agent-box h4 { margin: 0 0 10px; font-size: 14px; color: #333; }
-.agent-item { display: flex; align-items: center; gap: 8px; padding: 9px 0; border-bottom: 1px dashed #fff0e6; }
-.agent-item:last-child { border-bottom: none; }
-.agent-name { flex: 1; font-size: 14px; color: #444; font-weight: 600; word-break: break-all; }
-.agent-btn { background: #ff8a00; color: #fff; border: none; padding: 7px 12px; border-radius: 5px; font-size: 13px; font-weight: bold; cursor: pointer; text-decoration: none; white-space: nowrap; }
-.agent-btn.ghost { background: #fff; color: #ff8a00; border: 1px solid #ffd1a8; }
 .red-notice { font-size: 12px; color: #f5222d; text-align: center; line-height: 1.5; margin: 0; opacity: 0.8; }
 .guide-box { background: #fafafa; padding: 16px; border-radius: 8px; font-size: 13px; color: #666; line-height: 1.8; border: 1px solid #eee; }
 .guide-box h4 { margin: 0 0 10px; color: #333; font-size: 14px; }
-.wk-toast { position: fixed; top: 30px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: #fff; padding: 12px 24px; border-radius: 6px; font-size: 14px; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 999; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
-.wk-toast.show { opacity: 1; }
-.code-display { text-align: center; font-size: 28px; font-weight: bold; color: #d87a16; margin: 15px 0 5px; letter-spacing: 4px; display: none; }
+.agent-box { background: #fff; border: 1px solid #e1bee7; border-radius: 8px; padding: 14px; margin-bottom: 20px; }
+.agent-box h4 { margin: 0 0 10px; font-size: 14px; color: #333; }
+.agent-item { display: flex; align-items: center; gap: 8px; padding: 9px 0; border-bottom: 1px dashed #f0e6ff; }
+.agent-item:last-child { border-bottom: none; }
+.agent-name { flex: 1; font-size: 14px; color: #444; font-weight: 600; word-break: break-all; }
+.agent-btn { background: #7b2ff7; color: #fff; border: none; padding: 7px 12px; border-radius: 5px; font-size: 13px; font-weight: bold; cursor: pointer; text-decoration: none; white-space: nowrap; }
+.agent-btn.ghost { background: #fff; color: #7b2ff7; border: 1px solid #d1b3ff; }
+.mt-toast { position: fixed; top: 30px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: #fff; padding: 12px 24px; border-radius: 6px; font-size: 14px; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 999; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+.mt-toast.show { opacity: 1; }
+.code-display { text-align: center; font-size: 28px; font-weight: bold; color: #7b2ff7; margin: 15px 0 5px; letter-spacing: 4px; display: none; }
 .code-display.show { display: block; }
-.wk-alert { text-align: center; padding: 40px 20px; }
-.wk-alert h2 { color: #e65100; font-size: 18px; margin-bottom: 8px; }
-.wk-alert p { color: #999; font-size: 13px; }
+.mt-alert { text-align: center; padding: 40px 20px; }
+.mt-alert h2 { color: #6a1b9a; font-size: 18px; margin-bottom: 8px; }
+.mt-alert p { color: #999; font-size: 13px; }
 .loading-dots:after { content: '.'; animation: dots 1.5s steps(5, end) infinite; }
 @keyframes dots { 0%, 20% { color: rgba(0,0,0,0); text-shadow: .25em 0 0 rgba(0,0,0,0), .5em 0 0 rgba(0,0,0,0); } 40% { color: inherit; text-shadow: .25em 0 0 rgba(0,0,0,0), .5em 0 0 rgba(0,0,0,0); } 60% { text-shadow: .25em 0 0 inherit, .5em 0 0 rgba(0,0,0,0); } 80%, 100% { text-shadow: .25em 0 0 inherit, .5em 0 0 inherit; } }
 </style>
@@ -55,13 +56,13 @@ body { background-color: #f5f5f5; font-family: -apple-system, BlinkMacSystemFont
 <body>
 <div class="card">
     {% if cancelled %}
-    <div class="wk-alert"><h2>Đơn đã bị hủy</h2><p>Vui lòng liên hệ Admin.</p></div>
+    <div class="mt-alert"><h2>Đơn đã bị hủy</h2><p>Vui lòng liên hệ Admin.</p></div>
     {% elif expired %}
-    <div class="wk-alert"><h2>Đơn đã hết hạn</h2><p>Phiên đã kết thúc.</p></div>
+    <div class="mt-alert"><h2>Đơn đã hết hạn</h2><p>Phiên đã kết thúc.</p></div>
     {% else %}
-    
-    <div class="badge-top">Gói 30 ngày</div>
-    
+
+    <div class="badge-top">Gói Meitu 30 ngày</div>
+
     <div class="header-box">
         <div class="prefix-big" id="phone-prefix-big">
             {% if phone_prefix %}{{ phone_prefix }}{% else %}+852{% endif %}
@@ -71,7 +72,7 @@ body { background-color: #f5f5f5; font-family: -apple-system, BlinkMacSystemFont
             <p id="country-hint">Vui lòng chọn mã vùng {% if phone_prefix %}{{ phone_prefix }}{% else %}+852{% endif %} khi đăng nhập.</p>
         </div>
     </div>
-    
+
     <div class="info-row">
         <div class="info-label">Con số:</div>
         <div class="info-val" id="phone">{% if phone %}{{ phone }}{% else %}Đang tải<span class="loading-dots"></span>{% endif %}</div>
@@ -79,21 +80,17 @@ body { background-color: #f5f5f5; font-family: -apple-system, BlinkMacSystemFont
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> bản sao
         </button>
     </div>
-    
-    {% if login_mode == 'password_otp' %}
-    <div class="info-row" id="password-row">
+
+    <div class="info-row">
         <div class="info-label">Mật khẩu:</div>
         <div class="info-val" id="password" {% if not pwd or pwd == 'Chua cai mat khau' %}style="color:#f5222d;font-size:13px;"{% endif %}>{{ pwd }}</div>
         <button class="btn-copy-small" onclick="copyText('password')">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> bản sao
         </button>
     </div>
-    
+
     <button class="btn-copy-large" onclick="copyAll()">Sao chép tài khoản và mật khẩu chỉ với một cú nhấp chuột</button>
-    {% else %}
-    <button class="btn-copy-large" onclick="copyPhoneOnly()">Sao chép số điện thoại</button>
-    {% endif %}
-    
+
     <div class="expire-row">
         <div>Ngày hết hạn:</div>
         <span id="expire-date">--</span>
@@ -115,11 +112,7 @@ body { background-color: #f5f5f5; font-family: -apple-system, BlinkMacSystemFont
     {% endif %}
 
     <div class="warning-box">
-        {% if login_mode == 'password_otp' %}
         <p>Nên đăng nhập bằng tên người dùng và mật khẩu. Nếu cần mã xác minh, vui lòng bấm yêu cầu ở bên dưới.</p>
-        {% else %}
-        <p>Đăng nhập bằng số điện thoại và mã xác nhận. Vui lòng bấm nút bên dưới để lấy mã sau khi nhập số điện thoại.</p>
-        {% endif %}
 
         <div class="code-display {% if code %}show{% endif %}" id="phone-code">{% if code %}{{ code }}{% endif %}</div>
 
@@ -127,26 +120,19 @@ body { background-color: #f5f5f5; font-family: -apple-system, BlinkMacSystemFont
         <button class="btn-again {% if code %}show{% endif %}" id="btn-again" onclick="requestOtp()">Lấy mã khác</button>
         <div class="red-notice">Mã xác nhận chỉ có thể được cấp một lần và có hiệu lực trong 5 phút. Vui lòng không gửi lại mã này nhiều lần.</div>
     </div>
-    
+
     <div class="guide-box">
         <h4>Hướng dẫn sử dụng:</h4>
-        {% if login_mode == 'password_otp' %}
         1. Trước tiên, hãy đăng xuất khỏi tài khoản của bạn.<br>
         2. Chọn đăng nhập bằng tên người dùng và mật khẩu của bạn.<br>
         3. Chọn mã vùng <b id="guide-prefix">{% if phone_prefix %}{{ phone_prefix }}{% else %}+852{% endif %}</b> -- sau đó sao chép tên người dùng và mật khẩu từ trang đăng nhập.<br>
         4. Vui lòng đăng nhập bằng số điện thoại di động và mật khẩu của bạn trong vòng 10 phút.
-        {% else %}
-        1. Chọn mã vùng <b id="guide-prefix">{% if phone_prefix %}{{ phone_prefix }}{% else %}+852{% endif %}</b>.<br>
-        2. Nhập số điện thoại hiển thị ở trên vào ô đăng nhập.<br>
-        3. Bấm "Gửi mã xác nhận" trên trang đăng nhập, sau đó bấm nút "Lấy mã xác nhận" ở đây để nhận mã.<br>
-        4. Nhập mã xác nhận để hoàn tất đăng nhập. Mã có hiệu lực trong 5 phút.
-        {% endif %}
     </div>
 
     {% endif %}
 </div>
 
-<div class="wk-toast" id="toast"></div>
+<div class="mt-toast" id="toast"></div>
 
 <script>
 var TOKEN = '{{ order.token }}';
@@ -178,26 +164,14 @@ function copyText(id) {
     writeClip(t, 'Đã sao chép');
 }
 
-function copyPhoneOnly() {
-    var p = document.getElementById('phone');
-    if (!p) return;
-    var pt = p.textContent.trim();
-    if (!pt || pt.indexOf('Đang') === 0) return;
-    writeClip(pt, 'Đã sao chép số điện thoại');
-}
-
 function copyAll() {
     var p = document.getElementById('phone');
     var pw = document.getElementById('password');
-    if (!p) return;
+    if (!p || !pw) return;
     var pt = p.textContent.trim();
+    var pwt = pw.textContent.trim();
     if (pt.indexOf('Đang') === 0) return;
-    if (pw) {
-        var pwt = pw.textContent.trim();
-        writeClip(pt + '\n' + pwt, 'Đã sao chép Tài khoản & Mật khẩu');
-    } else {
-        writeClip(pt, 'Đã sao chép số điện thoại');
-    }
+    writeClip(pt + '\n' + pwt, 'Đã sao chép Tài khoản & Mật khẩu');
 }
 
 function fb(t) {
@@ -273,7 +247,8 @@ function updatePhoneDisplay(phone) {
         if (c.code) {
             var prefix = '+' + c.code;
             document.getElementById('phone-prefix-big').textContent = prefix;
-            document.getElementById('guide-prefix').textContent = prefix;
+            var gp = document.getElementById('guide-prefix');
+            if (gp) gp.textContent = prefix;
             var cName = (c.name === 'Hồng Kông' ? 'Hồng Kông, Trung Quốc' : c.name);
             document.getElementById('country-name').textContent = cName;
             document.getElementById('country-hint').textContent = 'Vui lòng chọn mã vùng ' + prefix + ' khi đăng nhập.';
@@ -285,7 +260,6 @@ function updatePasswordDisplay(pw) {
     var el = document.getElementById('password');
     if (el && pw && el.textContent.trim() !== pw) {
         el.textContent = pw;
-        // Nếu mật khẩu hợp lệ (không phải thông báo lỗi), đổi màu về bình thường
         if (pw !== 'Chua cai mat khau') {
             el.style.color = '#333';
             el.style.fontSize = '16px';
@@ -337,7 +311,6 @@ function updateCodeDisplay(code) {
         cEl.textContent = code;
         cEl.classList.add('show');
         showToast('Đã có mã: ' + code);
-
         var btn = document.getElementById('btn-get-otp');
         if (btn) { btn.textContent = 'Lấy mã thành công'; btn.disabled = true; }
         var again = document.getElementById('btn-again');

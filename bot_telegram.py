@@ -28,18 +28,37 @@ with flask_app.app_context():
 logger.info("DB tables ready")
 DL_DOMAINS = ['dlg.llii.me']
 WINK_DOMAINS = ['wmrjkf.com']
-MEITU_DOMAINS = []  # se cai trong admin settings, tam de rong
+def get_setting(key, default=''):
+    """Doc cai dat tu DB (admin settings) de khong phai sua code khi doi domain."""
+    with flask_app.app_context():
+        try:
+            from models import Setting
+            s = Setting.query.get(key)
+            return s.value if s and s.value else default
+        except Exception:
+            return default
+def meitu_domains():
+    return [d.strip().lower() for d in get_setting('meitu_domains').split(',') if d.strip()]
+def wink_domains():
+    extra = [d.strip().lower() for d in get_setting('wink_domains').split(',') if d.strip()]
+    return [d.lower() for d in WINK_DOMAINS] + extra
+def duolingo_domains():
+    extra = [d.strip().lower() for d in get_setting('duolingo_domains').split(',') if d.strip()]
+    return [d.lower() for d in DL_DOMAINS] + extra
 def detect_type(url):
-    for d in DL_DOMAINS:
-        if d in url.lower(): return 'duolingo'
-    for d in WINK_DOMAINS:
-        if d in url.lower(): return 'wink'
-    for d in MEITU_DOMAINS:
-        if d in url.lower(): return 'meitu'
+    u = url.lower()
+    # Meitu check truoc de domain cu the thang domain chung
+    for d in meitu_domains():
+        if d in u: return 'meitu'
+    for d in wink_domains():
+        if d in u: return 'wink'
+    for d in duolingo_domains():
+        if d in u: return 'duolingo'
     return 'xingtu'
 def get_link(token, ot):
     if ot == 'duolingo': return f'{WEB}/dl/{token}'
-    if ot in ('wink','wink_account','meitu','meitu_account'): return f'{WEB}/token/{token}'
+    if ot in ('meitu','meitu_account'): return f'{WEB}/meitu/{token}'
+    if ot in ('wink','wink_account'): return f'{WEB}/wink/{token}'
     return f'{WEB}/xingtu/{token}'
 def extract_urls(text):
     pat = r"https?://[^\s<>\[\](){}\"'`,;]+"
@@ -57,11 +76,18 @@ def create_order(url, name='TG User', login_mode='otp', extra_urls=None):
                 ot = 'wink_account'
             if ot == 'meitu' and login_mode == 'password_otp':
                 ot = 'meitu_account'
+            from models import WINK_TYPES, MEITU_TYPES, AGENT_TYPES, Setting
+            # Mat khau mac dinh theo loai, lay tu admin settings
+            pwd = None
+            if ot in AGENT_TYPES:
+                skey = 'wink_default_password' if ot in WINK_TYPES else 'meitu_default_password'
+                s = Setting.query.get(skey)
+                pwd = s.value if s and s.value else None
             o = Order(customer_name=name, source_url=url, status='pending',
                       token=secrets.token_urlsafe(16), order_type=ot, error_count=0,
-                      scraping_active=False, login_mode=login_mode)
+                      scraping_active=False, login_mode=login_mode, account_password=pwd)
             o.set_expiry(3); db.session.add(o); db.session.flush()
-            if ot in ('wink', 'wink_account', 'meitu', 'meitu_account') and extra_urls:
+            if ot in AGENT_TYPES and extra_urls:
                 all_urls = [url] + extra_urls
                 for u in all_urls:
                     parts = u.split('|', 1)
@@ -80,7 +106,8 @@ async def cmd_start(update, ctx):
          '\U0001f989 Duolingo: `https://dlg.llii.me/idxx?k=ABC`\n'
          '\U0001f511 Xingtu: `http://47.103.212.73/wap?key=ABC`\n'
          '\U0001f4f1 Wink SDT+OTP: `https://a.wmrjkf.com/url/xxx`\n'
-         '\U0001f512 Wink SDT+MK+OTP: dung lenh /winkmk\n\n'
+         '\U0001f3a8 Meitu SDT+OTP: domain cai trong Admin Settings\n'
+         '\U0001f512 SDT+MK+OTP: dung lenh /winkmk\n\n'
          '\U0001f4ce Gui *nhieu link* trong 1 tin nhan!\n'
          '\U0001f4dd Loc link tu van ban.\n\n'
          '*Lenh:* /start | /help | /stats | /winkmk')
@@ -95,23 +122,29 @@ async def cmd_help(update, ctx):
 async def cmd_stats(update, ctx):
     with flask_app.app_context():
         try:
-            t = Order.query.count()
-            sc = Order.query.filter_by(status='scraping').count()
-            ok = Order.query.filter_by(status='success').count()
-            wk = Order.query.filter(Order.order_type.in_(['wink','wink_account'])).count()
-            await update.message.reply_text(f'\U0001f4ca Tong: *{t}* | Quet: {sc} | Xong: {ok} | Wink: {wk}', parse_mode='Markdown')
+            from sqlalchemy import func
+            from models import WINK_TYPES, MEITU_TYPES
+            by_status = dict(db.session.query(Order.status, func.count()).group_by(Order.status).all())
+            by_type = dict(db.session.query(Order.order_type, func.count()).group_by(Order.order_type).all())
+            t = sum(by_status.values())
+            sc = by_status.get('scraping', 0)
+            ok = by_status.get('success', 0)
+            wk = sum(by_type.get(x, 0) for x in WINK_TYPES)
+            mt = sum(by_type.get(x, 0) for x in MEITU_TYPES)
+            await update.message.reply_text(
+                f'\U0001f4ca Tong: *{t}* | Quet: {sc} | Xong: {ok}\n\U0001f4f1 Wink: {wk} | \U0001f3a8 Meitu: {mt}',
+                parse_mode='Markdown')
         except Exception as e:
             logger.error(f'Stats error: {e}')
             await update.message.reply_text('Loi!')
 
-# Che do winkmk: SDT + Mat khau + OTP
 _winkmk_users = set()
 async def cmd_winkmk(update, ctx):
     uid = update.effective_user.id
     _winkmk_users.add(uid)
     await update.message.reply_text(
-        '\U0001f512 *Che do Wink SDT + MK + OTP*\n\n'
-        'Gui link Wink (nhieu link duoc) de tao don.\n'
+        '\U0001f512 *Che do Dai ly SDT + MK + OTP*\n\n'
+        'Gui link Wink/Meitu (nhieu link gop thanh 1 don).\n'
         'Trang web se co o nhap mat khau + nut lay OTP.\n\n'
         'Dung /start de quay ve che do binh thuong.',
         parse_mode='Markdown')
@@ -125,19 +158,19 @@ async def handle_msg(update, ctx):
     uid = update.effective_user.id
     is_winkmk = uid in _winkmk_users
     # Tao order cho tung link, luu ket qua theo loai
-    results = {'xingtu': [], 'duolingo': [], 'wink': [], 'wink_account': [], 'meitu': [], 'meitu_account': []}
-    wink_urls = [u for u in urls if detect_type(u) in ('wink','meitu')]
-    other_urls = [u for u in urls if detect_type(u) not in ('wink','meitu')]
+    results = {'xingtu': [], 'duolingo': [], 'wink': [], 'wink_account': []}
+    wink_urls = [u for u in urls if detect_type(u) == 'wink']
+    other_urls = [u for u in urls if detect_type(u) != 'wink']
     # Che do winkmk: gop tat ca link wink thanh 1 order
     if is_winkmk and wink_urls:
         first_url = wink_urls[0]
         extra = wink_urls[1:] if len(wink_urls) > 1 else None
         oid, link, ot = create_order(first_url, name, login_mode='password_otp', extra_urls=extra)
         if oid:
-            n = len(wink_urls)
-            results['wink_account'].append({'oid': oid, 'link': link, 'n': n})
+            n = len(agent_urls)
+            results[ot].append({'oid': oid, 'link': link, 'n': n})
             _winkmk_users.discard(uid)
-        # Link khac (non-wink) tao binh thuong
+        # Link khac (khong cung loai dai ly) tao binh thuong
         for url in other_urls:
             oid2, link2, ot2 = create_order(url, name)
             if oid2:
@@ -154,9 +187,7 @@ async def handle_msg(update, ctx):
         'xingtu': '\U0001f511 Xingtu:',
         'duolingo': '\U0001f989 Duolingo:',
         'wink': '\U0001f4f1 Wink SDT+Ma:',
-        'wink_account': '\U0001f512 Wink SDT+MK+OTP:',
-        'meitu': '\U0001f3a8 Meitu SDT+Ma:',
-        'meitu_account': '\U0001f512 Meitu SDT+MK+OTP:'
+        'wink_account': '\U0001f512 Wink SDT+MK+OTP:'
     }
     for ot_key in ['xingtu', 'duolingo', 'wink', 'wink_account', 'meitu', 'meitu_account']:
         items = results[ot_key]

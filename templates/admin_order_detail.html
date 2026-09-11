@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+ {% extends "base.html" %}
 {% block title %}Don #{{ order.id }} - {{ order.customer_name }}{% endblock %}
 {% block body %}
 <div class="container">
@@ -24,7 +24,7 @@
             </div>
             <div class="info-row">
                 <span class="label">Ngay tao:</span>
-                <span>{% if order.created_at %}{{ order.created_at.strftime('%d/%m/%Y %H:%M') }}{% endif %}</span>
+                <span>{{ order.created_at.strftime('%d/%m/%Y %H:%M') }}</span>
             </div>
             {% if order.expires_at %}
             <div class="info-row">
@@ -37,8 +37,8 @@
                 <div class="link-box">
                     {% if order.order_type == 'duolingo' %}
                     <input type="text" id="customer-link" readonly value="{{ request.host_url }}dl/{{ order.token }}">
-                    {% elif order.order_type in ('wink','wink_account','meitu','meitu_account') %}
-                    <input type="text" id="customer-link" readonly value="{{ request.host_url }}token/{{ order.token }}">
+                    {% elif order.order_type == 'wink' %}
+                    <input type="text" id="customer-link" readonly value="{{ request.host_url }}wink/?token={{ order.token }}">
                     {% else %}
                     <input type="text" id="customer-link" readonly value="{{ request.host_url }}xingtu/{{ order.token }}">
                     {% endif %}
@@ -55,9 +55,9 @@
                 Quet SDT ngay. Quet ma khi khach vao link.
             </div>
             {% endif %}
-            {% if order.order_type in ('wink','wink_account','meitu','meitu_account') %}
+            {% if order.order_type == 'wink' %}
             <div style="margin-top:8px;padding:8px;background:#fce4ec;border-radius:8px;font-size:12px;color:#c62828;">
-                {{ 'Meitu' if order.order_type in ('meitu','meitu_account') else 'Wink' }}: Lay SDT (#phone) + Ma code (#phone-code). Tu dong quet khi co URL.
+                Wink: Lay SDT (#phone) + Ma code (#phone-code). Tu dong quet khi co URL.
             </div>
             {% endif %}
         </div>
@@ -76,9 +76,9 @@
                 {{ order.latest_phone }}
             </div>
             {% endif %}
-            {% if codes and codes[0].scraped_at %}
+            {% if order.codes %}
             <small class="text-muted" style="display:block;text-align:center;margin-top:8px;">
-                Cap nhat: {{ codes[0].scraped_at.strftime('%H:%M:%S') }}
+                Cap nhat: {{ order.codes[0].scraped_at.strftime('%H:%M:%S') }}
             </small>
             {% endif %}
         </div>
@@ -133,7 +133,7 @@
                     <td>{{ c.id }}</td>
                     <td>{% if c.code %}<code class="code-badge">{{ c.code }}</code>{% else %}--{% endif %}</td>
                     <td>{% if c.phone %}<code class="code-badge" style="color:#2ecc71;">{{ c.phone }}</code>{% else %}--{% endif %}</td>
-                    <td>{% if c.scraped_at %}{{ c.scraped_at.strftime('%H:%M:%S') }}{% else %}--{% endif %}</td>
+                    <td>{{ c.scraped_at.strftime('%H:%M:%S') }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -148,9 +148,6 @@
 .type-xingtu{background:#fff3cd;color:#856404}
 .type-duolingo{background:#d4edda;color:#155724}
 .type-wink{background:#fce4ec;color:#c62828}
-.type-wink_account{background:#fce4ec;color:#c62828}
-.type-meitu{background:#e0d4fd;color:#4a148c}
-.type-meitu_account{background:#e0d4fd;color:#4a148c}
 </style>
 <script>
 function copyLink(){

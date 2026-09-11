@@ -31,6 +31,21 @@
                 <option value="password_otp" {% if settings.get('meitu_mode') == 'password_otp' %}selected{% endif %}>SDT + MK + OTP</option>
             </select>
         </div>
+        <div class="form-group">
+            <label for="wink_default_password">Mat khau mac dinh Wink</label>
+            <input type="text" id="wink_default_password" name="wink_default_password" value="{{ settings.get('wink_default_password','') }}" placeholder="AAA123@666">
+            <small style="color:#999;font-size:11px;display:block;margin-top:4px">Dung khi tao don Wink ma khong nhap mat khau rieng</small>
+        </div>
+        <div class="form-group">
+            <label for="meitu_default_password">Mat khau mac dinh Meitu</label>
+            <input type="text" id="meitu_default_password" name="meitu_default_password" value="{{ settings.get('meitu_default_password','') }}" placeholder="AAA123@666">
+            <small style="color:#999;font-size:11px;display:block;margin-top:4px">Dung khi tao don Meitu ma khong nhap mat khau rieng</small>
+        </div>
+        <div class="form-group">
+            <label for="meitu_domains">Domain Meitu (cho bot Telegram)</label>
+            <input type="text" id="meitu_domains" name="meitu_domains" value="{{ settings.get('meitu_domains','') }}" placeholder="meitu1.com, meitu2.com">
+            <small style="color:#999;font-size:11px;display:block;margin-top:4px">Cach nhau bang dau phay. Bot se nhan dien link Meitu tu cac domain nay</small>
+        </div>
         <div class="form-actions">
             <button type="submit" class="btn btn-primary">Luu cai dat</button>
         </div>

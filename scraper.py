@@ -110,9 +110,9 @@ class CodeScraper:
             return True
 
     def _scrape_order(self, order):
-        from models import CodeHistory, db, now_vn
+        from models import CodeHistory, db, now_vn, AGENT_TYPES
         is_dlg = (order.order_type == "duolingo")
-        is_wink = order.order_type in ("wink", "wink_account", "meitu", "meitu_account")
+        is_wink = order.order_type in AGENT_TYPES
         with self._lock:
             # Check for Meitu API URL pattern
             if is_wink and "104.250.159.50" in (order.source_url or ""):
@@ -145,13 +145,33 @@ class CodeScraper:
                 page.on("dialog", lambda d: d.accept())
                 page.goto(order.source_url, wait_until="domcontentloaded", timeout=10000)
                 if is_wink:
-                    # Cho SDT xuat hien (event-driven, toi da 8s)
+                    # Wink login: SDT + ma xac nhan gui sau khi dang nhap
+                    # Buoc 1: lay SDT trong 2-5s, neu khong co -> fallback quet toan trang
                     try:
-                        page.wait_for_selector("#phone", state="attached", timeout=8000)
+                        page.wait_for_selector("#phone", state="attached", timeout=5000)
                         el = page.query_selector("#phone")
-                        if el: phone = el.inner_text().strip()
-                    except Exception: pass
-                    # Cho ma OTP hop le xuat hien - lay NGAY khi co (toi da 30s)
+                        if el:
+                            phone = el.inner_text().strip()
+                            if not phone or len(phone) < 6:
+                                time.sleep(0.5)
+                                el = page.query_selector("#phone")
+                                if el: phone = el.inner_text().strip()
+                    except Exception as e:
+                        logger.warning(f"Order {order.id}: #phone not found after 5s: {e}")
+                    # Fallback selector khi #phone khong tim thay sau 5s: quet toan bo trang bang regex
+                    if not phone:
+                        try:
+                            phone = page.evaluate("""() => {
+                                const el = document.querySelector('#phone');
+                                if (el && (el.innerText || '').trim().length >= 6) return (el.innerText || '').trim();
+                                const body = document.body.innerText || '';
+                                const m = body.match(/\\b(1[3-9]\\d{9}|852\\d{8})\\b/);
+                                return m ? m[0] : '';
+                            }""")
+                            if phone:
+                                logger.info(f"Order {order.id}: phone found via fallback regex: {phone}")
+                        except Exception: pass
+                    # Buoc 2: ma xac nhan gui sau khi dang nhap - cho toi da 30s
                     try:
                         page.wait_for_function(
                             "() => { const el = document.querySelector('#phone-code');"
