@@ -1,138 +1,270 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>WINK - Lay ma xac minh</title>
+<title>Tài khoản</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
-.wk-card{background:#fff;border-radius:20px;max-width:440px;width:100%;padding:28px 24px;box-shadow:0 20px 60px rgba(0,0,0,0.15)}
-.wk-badge{text-align:center;margin-bottom:16px}
-.wk-badge span{display:inline-block;background:#f0faf0;color:#4caf50;font-size:12px;font-weight:600;padding:4px 16px;border-radius:20px;border:1px solid #c8e6c9}
-.wk-banner{background:linear-gradient(135deg,#ff8a00,#ff6b35);border-radius:14px;padding:18px 20px;display:flex;align-items:center;gap:14px;margin-bottom:20px;color:#fff}
-.wk-banner-code{font-size:28px;font-weight:900;letter-spacing:1px}
-.wk-banner-info{flex:1}.wk-banner-title{font-size:16px;font-weight:700}.wk-banner-sub{font-size:11px;opacity:0.9;margin-top:2px}
-.wk-row{display:flex;align-items:center;padding:14px 0;border-bottom:1px solid #f0f0f0}.wk-row:last-of-type{border-bottom:none}
-.wk-label{color:#999;font-size:14px;width:50px;flex-shrink:0}
-.wk-value{flex:1;font-size:18px;font-weight:700;color:#333;letter-spacing:1px}
-.wk-copy{background:none;border:1px solid #ddd;border-radius:8px;padding:6px 14px;font-size:12px;color:#666;cursor:pointer;display:flex;align-items:center;gap:4px;transition:all 0.2s;white-space:nowrap}
-.wk-copy:hover{border-color:#ff6b35;color:#ff6b35;background:#fff5f0}.wk-copy svg{width:14px;height:14px}
-.wk-btn-all{width:100%;padding:14px;border:none;border-radius:12px;background:linear-gradient(135deg,#ff8a00,#ff6b35);color:#fff;font-size:15px;font-weight:700;cursor:pointer;margin:16px 0;transition:all 0.2s;box-shadow:0 4px 15px rgba(255,107,53,0.3)}
-.wk-btn-all:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(255,107,53,0.4)}
-.wk-expire{text-align:center;font-size:13px;color:#999;margin-bottom:16px}.wk-expire b{color:#ff6b35}
-.wk-notice{background:#fff8e1;border:1px solid #ffe082;border-radius:12px;padding:14px 16px;margin-bottom:16px}
-.wk-notice-title{display:flex;align-items:center;gap:6px;font-size:13px;color:#f57f17;font-weight:600;margin-bottom:6px}
-.wk-notice-text{font-size:12px;color:#888;line-height:1.6}
-.wk-guide{background:#f9f9f9;border-radius:12px;padding:16px;margin-bottom:16px}
-.wk-guide-title{font-size:14px;font-weight:700;color:#333;margin-bottom:10px}
-.wk-guide-item{font-size:12px;color:#666;line-height:2;padding-left:4px}.wk-guide-item b{color:#ff6b35}
-.wk-status{display:flex;align-items:center;justify-content:center;gap:6px;padding:10px;font-size:11px;color:#bbb}
-.wk-dot{width:6px;height:6px;border-radius:50%;background:#4caf50;animation:wp 2s infinite}
-.wk-status.done .wk-dot{background:#ccc;animation:none}
-@keyframes wp{0%,100%{opacity:1}50%{opacity:0.3}}
-.wk-wait{color:#ccc;font-size:14px;font-weight:400}
-.wk-sp{width:12px;height:12px;border:2px solid #eee;border-top-color:#ff6b35;border-radius:50%;animation:wspin 0.8s linear infinite;display:inline-block;vertical-align:middle;margin-right:4px}
-@keyframes wspin{to{transform:rotate(360deg)}}
-.wk-hidden{display:none!important}
-.wk-alert{text-align:center;padding:40px 20px}.wk-alert h2{color:#e65100;font-size:18px;margin-bottom:8px}.wk-alert p{color:#999;font-size:13px}
-.wk-toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(80px);background:#333;color:#fff;padding:10px 24px;border-radius:25px;font-size:13px;opacity:0;transition:all 0.3s;z-index:999;pointer-events:none}
-.wk-toast.show{transform:translateX(-50%) translateY(0);opacity:1}
-.wk-flash{animation:wflash 0.5s ease}@keyframes wflash{0%{background:#fff3e0}100%{background:transparent}}
-.wk-tabs{display:flex;gap:0;margin-bottom:18px;border-radius:12px;overflow:hidden;border:1px solid #eee}
-.wk-tab{flex:1;padding:12px 8px;text-align:center;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;background:#f9f9f9;color:#999;border:none}
-.wk-tab.active{background:linear-gradient(135deg,#ff8a00,#ff6b35);color:#fff}.wk-tab:hover:not(.active){background:#f0f0f0;color:#666}
-.wk-panel{display:none}.wk-panel.active{display:block}
-.wk-pw-field{width:100%;padding:12px 14px;border:1px solid #ddd;border-radius:10px;font-size:15px;font-weight:600;letter-spacing:1px;margin-bottom:10px;color:#333;outline:none;transition:border 0.2s}
-.wk-pw-field:focus{border-color:#ff6b35}
-.wk-btn-otp{width:100%;padding:12px;border:2px solid #ff6b35;border-radius:12px;background:#fff;color:#ff6b35;font-size:14px;font-weight:700;cursor:pointer;transition:all 0.2s;margin-top:6px}
-.wk-btn-otp:hover{background:#ff6b35;color:#fff}.wk-btn-otp:disabled{opacity:0.5;cursor:not-allowed}
-.wk-prefix-box{background:#e8f5e9;border:1px solid #c8e6c9;border-radius:10px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
-.wk-prefix-label{font-size:12px;color:#666}.wk-prefix-val{font-size:16px;font-weight:700;color:#2e7d32;letter-spacing:1px}
-.wk-mode-badge{text-align:center;background:#f5f5f5;border:1px solid #eee;border-radius:8px;padding:8px 14px;margin-bottom:14px;font-size:12px;font-weight:600;color:#666}
+* { box-sizing: border-box; }
+body { background-color: #f5f5f5; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; display: flex; justify-content: center; padding: 20px 10px; margin: 0; min-height: 100vh; }
+.card { background: #fff; border-radius: 12px; max-width: 440px; width: 100%; border: 1px solid #e0e0e0; padding: 24px 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); position: relative; }
+.badge-top { display: block; padding: 6px 16px; border: 1px solid #c8e6c9; border-radius: 4px; color: #4caf50; font-size: 13px; font-weight: bold; text-align: center; margin: 0 auto 20px; background: #f0faf0; width: max-content; }
+.header-box { background: linear-gradient(90deg, #ff8a00, #ff6b35); border-radius: 10px; color: #fff; padding: 16px; display: flex; align-items: center; margin-bottom: 24px; box-shadow: 0 4px 10px rgba(255,107,53,0.3); }
+.prefix-big { font-size: 32px; font-weight: bold; margin-right: 15px; text-shadow: 1px 1px 2px rgba(0,0,0,0.1); }
+.header-text h3 { margin: 0 0 4px 0; font-size: 16px; font-weight: bold; }
+.header-text p { margin: 0; font-size: 13px; opacity: 0.95; }
+.info-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px dashed #eee; }
+.info-label { color: #666; font-size: 15px; width: 90px; }
+.info-val { font-weight: bold; font-size: 16px; flex: 1; color: #333; }
+.btn-copy-small { color: #1890ff; background: none; border: none; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 4px; padding: 0; }
+.btn-copy-small:hover { text-decoration: underline; }
+.btn-copy-small svg { width: 14px; height: 14px; }
+.btn-copy-large { width: 100%; background: #67c23a; color: #fff; border: none; padding: 12px; border-radius: 6px; font-size: 14px; font-weight: bold; margin: 15px 0 5px; cursor: pointer; transition: background 0.2s; box-shadow: 0 2px 6px rgba(103,194,58,0.3); }
+.btn-copy-large:hover { background: #5daf34; }
+.expire-row { padding: 12px 0; font-size: 15px; color: #666; display: flex; }
+.expire-row span { color: #4caf50; font-weight: bold; margin-left: 15px; }
+.warning-box { background: #fff8e1; border: 1px solid #ffe082; padding: 16px; border-radius: 8px; margin-bottom: 20px; margin-top: 10px; }
+.warning-box p { font-size: 13px; color: #d87a16; margin: 0 0 16px; line-height: 1.6; display: flex; gap: 6px; }
+.warning-box p::before { content: "ⓘ"; font-weight: bold; font-size: 14px; }
+.btn-get-code { width: 100%; background: #e6a23c; color: #fff; border: none; padding: 14px; border-radius: 6px; font-size: 15px; font-weight: bold; cursor: pointer; margin-bottom: 12px; transition: background 0.2s; box-shadow: 0 2px 6px rgba(230,162,60,0.3); }
+.btn-get-code:hover { background: #d59132; }
+.btn-get-code:disabled { opacity: 0.7; cursor: not-allowed; }
+.red-notice { font-size: 12px; color: #f5222d; text-align: center; line-height: 1.5; margin: 0; opacity: 0.8; }
+.guide-box { background: #fafafa; padding: 16px; border-radius: 8px; font-size: 13px; color: #666; line-height: 1.8; border: 1px solid #eee; }
+.guide-box h4 { margin: 0 0 10px; color: #333; font-size: 14px; }
+.wk-toast { position: fixed; top: 30px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: #fff; padding: 12px 24px; border-radius: 6px; font-size: 14px; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 999; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+.wk-toast.show { opacity: 1; }
+.code-display { text-align: center; font-size: 28px; font-weight: bold; color: #d87a16; margin: 15px 0 5px; letter-spacing: 4px; display: none; }
+.code-display.show { display: block; }
+.wk-alert { text-align: center; padding: 40px 20px; }
+.wk-alert h2 { color: #e65100; font-size: 18px; margin-bottom: 8px; }
+.wk-alert p { color: #999; font-size: 13px; }
+.loading-dots:after { content: '.'; animation: dots 1.5s steps(5, end) infinite; }
+@keyframes dots { 0%, 20% { color: rgba(0,0,0,0); text-shadow: .25em 0 0 rgba(0,0,0,0), .5em 0 0 rgba(0,0,0,0); } 40% { color: inherit; text-shadow: .25em 0 0 rgba(0,0,0,0), .5em 0 0 rgba(0,0,0,0); } 60% { text-shadow: .25em 0 0 inherit, .5em 0 0 rgba(0,0,0,0); } 80%, 100% { text-shadow: .25em 0 0 inherit, .5em 0 0 inherit; } }
 </style>
 </head>
 <body>
-<div class="wk-card">{% if cancelled %}
-<div class="wk-alert"><h2>Don da bi huy</h2><p>Lien he admin.</p></div>
-{% elif expired %}
-<div class="wk-alert"><h2>Don da het han</h2><p>Token da het han.</p></div>
-{% else %}
-<div class="wk-badge"><span>WINK ACCOUNT</span></div>
-<div class="wk-banner">
-    <div class="wk-banner-code">W</div>
-    <div class="wk-banner-info">
-        <div class="wk-banner-title">Wink - Dang nhap dai ly</div>
-        <div class="wk-banner-sub">{{ order.customer_name }} | {{ 'SDT + Mat khau + OTP' if login_mode == 'password_otp' else 'SDT + Ma OTP' }}</div>
+<div class="card">
+    {% if cancelled %}
+    <div class="wk-alert"><h2>Đơn đã bị hủy</h2><p>Vui lòng liên hệ Admin.</p></div>
+    {% elif expired %}
+    <div class="wk-alert"><h2>Đơn đã hết hạn</h2><p>Phiên đã kết thúc.</p></div>
+    {% else %}
+    
+    <div class="badge-top">Gói 30 ngày</div>
+    
+    <div class="header-box">
+        <div class="prefix-big" id="phone-prefix-big">
+            {% if phone_prefix %}{{ phone_prefix }}{% else %}+852{% endif %}
+        </div>
+        <div class="header-text">
+            <h3 id="country-name">{% if country_name and country_name != 'Khong xac dinh' %}{{ country_name }}{% else %}Hồng Kông, Trung Quốc{% endif %}</h3>
+            <p id="country-hint">Vui lòng chọn mã vùng {% if phone_prefix %}{{ phone_prefix }}{% else %}+852{% endif %} khi đăng nhập.</p>
+        </div>
     </div>
-</div>
-<div class="wk-prefix-box">
-    <span class="wk-prefix-label">Dau so (tu SDT):</span>
-    <span class="wk-prefix-val" id="phone-prefix">{% if phone_prefix %}{{ phone_prefix }} <small style="font-size:11px;color:#666;font-weight:400">({{ country_name }})</small>{% else %}<span class="wk-wait"><span class="wk-sp"></span>Dang quet...</span>{% endif %}</span>
-</div>
-<!-- Chi hien che do da chon, khong co tab chuyen doi -->
-{% if login_mode == 'password_otp' %}
-<div class="wk-mode-badge">Che do: SDT + Mat khau + OTP</div>
-<div class="wk-panel active" id="panel-pw">
-    <div class="wk-row">
-        <span class="wk-label">SDT:</span>
-        <span class="wk-value" id="phone">{% if phone %}{{ phone }}{% else %}<span class="wk-wait"><span class="wk-sp"></span>Dang quet...</span>{% endif %}</span>
-        <button class="wk-copy {% if not phone %}wk-hidden{% endif %}" id="btn-phone" onclick="copyText('phone')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Copy</button>
+    
+    <div class="info-row">
+        <div class="info-label">Con số:</div>
+        <div class="info-val" id="phone">{% if phone %}{{ phone }}{% else %}Đang tải<span class="loading-dots"></span>{% endif %}</div>
+        <button class="btn-copy-small" onclick="copyText('phone')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> bản sao
+        </button>
     </div>
-    <div style="padding:14px 0;border-bottom:1px solid #f0f0f0">
-        <span class="wk-label" style="display:block;margin-bottom:6px">Mat khau:</span>
-        <input type="text" class="wk-pw-field" id="password-field" placeholder="Nhap mat khau tai day...">
+    
+    <div class="info-row">
+        <div class="info-label">Mật khẩu:</div>
+        <div class="info-val" id="password">{{ order.note or 'AAA123@666' }}</div>
+        <button class="btn-copy-small" onclick="copyText('password')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> bản sao
+        </button>
     </div>
-    <div class="wk-row">
-        <span class="wk-label">OTP:</span>
-        <span class="wk-value" id="otp-code">{% if code %}{{ code }}{% else %}<span class="wk-wait"><span class="wk-sp"></span>Bam nut de lay...</span>{% endif %}</span>
-        <button class="wk-copy {% if not code %}wk-hidden{% endif %}" id="btn-otp" onclick="copyText('otp-code')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Copy</button>
+    
+    <button class="btn-copy-large" onclick="copyAll()">Sao chép tài khoản và mật khẩu chỉ với một cú nhấp chuột</button>
+    
+    <div class="expire-row">
+        <div>Ngày hết hạn:</div>
+        <span id="expire-date">--</span>
     </div>
-    <button class="wk-btn-otp" id="btn-get-otp" onclick="requestOtp()">Lay ma OTP</button>
-</div>
-{% else %}
-<div class="wk-mode-badge">Che do: SDT + Ma OTP</div>
-<div class="wk-panel active" id="panel-otp">
-    <div class="wk-row">
-        <span class="wk-label">SDT:</span>
-        <span class="wk-value" id="phone">{% if phone %}{{ phone }}{% else %}<span class="wk-wait"><span class="wk-sp"></span>Dang quet...</span>{% endif %}</span>
-        <button class="wk-copy {% if not phone %}wk-hidden{% endif %}" id="btn-phone" onclick="copyText('phone')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Copy</button>
+    
+    <div class="warning-box">
+        <p>Nên đăng nhập bằng tên người dùng và mật khẩu. Nếu cần mã xác minh, vui lòng bấm yêu cầu ở bên dưới.</p>
+        
+        <div class="code-display {% if code %}show{% endif %}" id="phone-code">{% if code %}{{ code }}{% endif %}</div>
+        
+        <button class="btn-get-code" id="btn-get-otp" onclick="requestOtp()">Tôi đã gửi rồi. Vui lòng lấy mã xác nhận.</button>
+        <div class="red-notice">Mã xác nhận chỉ có thể được cấp một lần và có hiệu lực trong 5 phút. Vui lòng không gửi lại mã này nhiều lần.</div>
     </div>
-    <div class="wk-row">
-        <span class="wk-label">Ma:</span>
-        <span class="wk-value" id="phone-code">{% if code %}{{ code }}{% else %}<span class="wk-wait"><span class="wk-sp"></span>Dang cho...</span>{% endif %}</span>
-        <button class="wk-copy {% if not code %}wk-hidden{% endif %}" id="btn-code" onclick="copyText('phone-code')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Copy</button>
+    
+    <div class="guide-box">
+        <h4>Hướng dẫn sử dụng:</h4>
+        1. Trước tiên, hãy đăng xuất khỏi tài khoản của bạn.<br>
+        2. Chọn đăng nhập bằng tên người dùng và mật khẩu của bạn.<br>
+        3. Chọn mã vùng <b id="guide-prefix">{% if phone_prefix %}{{ phone_prefix }}{% else %}+852{% endif %}</b> -- sau đó sao chép tên người dùng và mật khẩu từ trang đăng nhập.<br>
+        4. Vui lòng đăng nhập bằng số điện thoại di động và mật khẩu của bạn trong vòng 10 phút.
     </div>
-    <button class="wk-btn-all" onclick="copyAll()">Sao chep SDT + Ma</button>
+
+    {% endif %}
 </div>
-{% endif %}
-<div class="wk-expire">Het han sau: <b id="expire-date">--</b></div>
-<div class="wk-notice"><div class="wk-notice-title">&#9888; Luu y</div><div class="wk-notice-text">Ma OTP chi co hieu luc trong 5 phut, dung gui nhieu lan.</div></div>
-<div class="wk-guide">
-    <div class="wk-guide-title">Huong dan:</div>
-    <div class="wk-guide-item">1. Thoat tai khoan hien tai khoi app Wink</div>
-    <div class="wk-guide-item">2. Chon dang nhap bang SDT</div>
-    <div class="wk-guide-item">3. Chon khu vuc <b id="guide-prefix">{{ phone_prefix if phone_prefix else '...' }}</b> - sao chep SDT</div>
-    <div class="wk-guide-item">4. {% if login_mode == 'password_otp' %}Nhap mat khau, bam <b>"Lay ma OTP"</b> roi nhap ma{% else %}Trong 5 phut su dung SDT de dang nhap{% endif %}</div>
-</div>
-<div class="wk-status" id="statusBar"><span class="wk-dot"></span><span id="statusText">Tu dong cap nhat moi 2 giay</span></div>
-{% endif %}
-</div>
-<div class="wk-toast" id="toast"></div><script>
-var TOKEN='{{ order.token }}';var pollTimer=null;var hasCode={% if code %}true{% else %}false{% endif %};var LOGIN_MODE='{{ login_mode or "otp" }}';
-function copyText(id){var el=document.getElementById(id);if(!el)return;var t=el.textContent.trim();if(!t||t.indexOf('Dang')===0||t.indexOf('Bam')===0)return;if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){showToast('Da sao chep: '+t)}).catch(function(){fb(t)})}else fb(t)}
-function copyAll(){var p=document.getElementById('phone');var c=document.getElementById('phone-code');if(!p||!c)return;var pt=p.textContent.trim();var ct=c.textContent.trim();if(pt.indexOf('Dang')===0)return;var txt='SDT: '+pt+(ct.indexOf('Dang')!==0?' | Ma: '+ct:'');if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(function(){showToast('Da sao chep SDT + Ma')}).catch(function(){fb(txt)})}else fb(txt)}
-function fb(t){var ta=document.createElement('textarea');ta.value=t;ta.style.position='fixed';ta.style.left='-9999px';document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand('copy');showToast('Da sao chep')}catch(e){showToast('Loi')}document.body.removeChild(ta)}
-function showToast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.remove('show');void t.offsetWidth;t.classList.add('show');setTimeout(function(){t.classList.remove('show')},1500)}
-function stopPoll(msg){if(pollTimer){clearInterval(pollTimer);pollTimer=null}var b=document.getElementById('statusBar');var txt=document.getElementById('statusText');if(b)b.classList.add('done');if(txt)txt.textContent=msg||'Da lay ma thanh cong'}
-function setExpire(){var d=new Date();d.setDate(d.getDate()+30);var s=d.toLocaleDateString('vi-VN');var el=document.getElementById('expire-date');if(el)el.textContent=s}
+
+<div class="wk-toast" id="toast"></div>
+
+<script>
+var TOKEN = '{{ order.token }}';
+var pollTimer = null;
+var hasCode = {% if code %}true{% else %}false{% endif %};
+
+function showToast(m) {
+    var t = document.getElementById('toast');
+    t.textContent = m;
+    t.classList.remove('show');
+    void t.offsetWidth;
+    t.classList.add('show');
+    setTimeout(function(){ t.classList.remove('show'); }, 2000);
+}
+
+function copyText(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    var t = el.textContent.trim();
+    if (!t || t.indexOf('Đang') === 0) return;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(t).then(function(){ showToast('Đã sao chép'); }).catch(function(){ fb(t); });
+    } else fb(t);
+}
+
+function copyAll() {
+    var p = document.getElementById('phone');
+    var pw = document.getElementById('password');
+    if (!p || !pw) return;
+    var pt = p.textContent.trim();
+    var pwt = pw.textContent.trim();
+    if (pt.indexOf('Đang') === 0) return;
+    var txt = pt + '\n' + pwt;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(txt).then(function(){ showToast('Đã sao chép Tài khoản & Mật khẩu'); }).catch(function(){ fb(txt); });
+    } else fb(txt);
+}
+
+function fb(t) {
+    var ta = document.createElement('textarea');
+    ta.value = t;
+    ta.style.position = 'fixed';
+    ta.style.left = '-9999px';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    try { document.execCommand('copy'); showToast('Đã sao chép'); } catch(e) { showToast('Lỗi'); }
+    document.body.removeChild(ta);
+}
+
+function stopPoll() {
+    if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+}
+
+function setExpire() {
+    var d = new Date();
+    d.setDate(d.getDate() + 30);
+    var el = document.getElementById('expire-date');
+    if (el) el.textContent = d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
+}
 setExpire();
-function requestOtp(){var btn=document.getElementById('btn-get-otp');if(btn.disabled)return;btn.disabled=true;btn.textContent='Dang lay OTP...';var xhr=new XMLHttpRequest();xhr.open('POST','/api/wink-request-otp/'+TOKEN,true);xhr.onload=function(){if(xhr.status===200){showToast('Da yeu cau OTP moi');setTimeout(function(){btn.disabled=false;btn.textContent='Lay ma OTP'},30000)}else{btn.disabled=false;btn.textContent='Lay ma OTP';showToast('Loi khi yeu cau OTP')}};xhr.onerror=function(){btn.disabled=false;btn.textContent='Lay ma OTP';showToast('Loi ket noi')};xhr.send()}
-function getCountry(phone){var digits=phone.replace(/\D/g,'');var len=digits.length;if(len===13&&digits.indexOf('861')===0){return{code:'86',name:'China',cleanPhone:digits.slice(2)}}if(len===11&&digits.indexOf('852')===0){return{code:'852',name:'Hongkong',cleanPhone:digits.slice(3)}}if(len===8&&/^[4-9]/.test(digits)){return{code:'852',name:'Hongkong',cleanPhone:digits}}if(len===11&&digits.indexOf('1')===0){return{code:'86',name:'China',cleanPhone:digits}}if(len===10&&/^[2-9]/.test(digits)){return{code:'1',name:'Canada/US',cleanPhone:digits}}return{code:null,name:'Khong xac dinh',cleanPhone:digits}}
-function updatePhoneDisplay(phone){var pEl=document.getElementById('phone');var pBtn=document.getElementById('btn-phone');if(pEl){var cur=pEl.textContent.trim();if(cur.indexOf('Dang')===0||cur!==phone){pEl.textContent=phone;pEl.parentElement.classList.add('wk-flash');setTimeout((function(el){return function(){el.classList.remove('wk-flash')}})(pEl.parentElement),500);if(pBtn)pBtn.classList.remove('wk-hidden')}}if(phone){var c=getCountry(phone);var pfEl=document.getElementById('phone-prefix');var gpEl=document.getElementById('guide-prefix');if(c.code){var txt='+'+c.code;if(pfEl)pfEl.innerHTML=txt+' <small style="font-size:11px;color:#666;font-weight:400">('+c.name+')</small>';if(gpEl)gpEl.textContent='+'+c.code}else{if(pfEl)pfEl.innerHTML='<span style="color:#999;font-size:13px;font-weight:400">Khong xac dinh</span>';if(gpEl)gpEl.textContent='...'}}}
-function updateCodeDisplay(code){if(LOGIN_MODE==='password_otp'){var oEl=document.getElementById('otp-code'),oBtn=document.getElementById('btn-otp');if(oEl){var ou=oEl.textContent.trim();if(ou.indexOf('Dang')===0||ou.indexOf('Bam')===0||ou!==code){oEl.textContent=code;oEl.parentElement.classList.add('wk-flash');setTimeout(function(){oEl.parentElement.classList.remove('wk-flash')},500);if(oBtn)oBtn.classList.remove('wk-hidden')}}}else{var cEl=document.getElementById('phone-code'),cBtn=document.getElementById('btn-code');if(cEl){var cu=cEl.textContent.trim();if(cu.indexOf('Dang')===0||cu!==code){cEl.textContent=code;cEl.parentElement.classList.add('wk-flash');setTimeout(function(){cEl.parentElement.classList.remove('wk-flash')},500);if(cBtn)cBtn.classList.remove('wk-hidden')}}}showToast('Ma Wink: '+code)}
-function fetchData(){var xhr=new XMLHttpRequest();xhr.open('GET','/api/code/'+TOKEN,true);xhr.onload=function(){if(xhr.status===200){var d=JSON.parse(xhr.responseText);if(d.status==='expired'||d.status==='cancelled'){location.reload();return}if(d.phone)updatePhoneDisplay(d.phone);if(d.code){updateCodeDisplay(d.code);stopPoll('Da lay ma thanh cong');return}if(d.status==='success'){stopPoll('Da hoan thanh');return}}};xhr.onerror=function(){var t=document.getElementById('statusText');if(t)t.textContent='Mat ket noi...'};xhr.send()}
-if(hasCode){stopPoll('Da co ma - dung quet')}else{pollTimer=setInterval(fetchData,2000);fetchData()}
+
+function requestOtp() {
+    var btn = document.getElementById('btn-get-otp');
+    if (btn.disabled) return;
+    btn.disabled = true;
+    btn.textContent = 'Đang lấy mã...';
+    
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/api/wink-request-otp/' + TOKEN, true);
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            showToast('Đã gửi yêu cầu lấy mã');
+            if (!pollTimer) { pollTimer = setInterval(fetchData, 2000); }
+            setTimeout(function(){ 
+                btn.disabled = false; 
+                btn.textContent = 'Tôi đã gửi rồi. Vui lòng lấy mã xác nhận.'; 
+            }, 10000);
+        } else {
+            btn.disabled = false;
+            btn.textContent = 'Thử lại';
+            showToast('Lỗi khi yêu cầu lấy mã');
+        }
+    };
+    xhr.send();
+}
+
+function getCountry(phone) {
+    var digits = phone.replace(/\D/g, '');
+    var len = digits.length;
+    if (len === 13 && digits.indexOf('861') === 0) return { code: '86', name: 'Trung Quốc' };
+    if (len === 11 && digits.indexOf('852') === 0) return { code: '852', name: 'Hồng Kông' };
+    if (len === 8 && /^[4-9]/.test(digits)) return { code: '852', name: 'Hồng Kông' };
+    if (len === 11 && digits.indexOf('1') === 0) return { code: '86', name: 'Trung Quốc' };
+    if (len === 10 && /^[2-9]/.test(digits)) return { code: '1', name: 'Mỹ / Canada' };
+    return { code: null, name: 'Khác' };
+}
+
+function updatePhoneDisplay(phone) {
+    var pEl = document.getElementById('phone');
+    if (pEl && pEl.textContent.trim() !== phone) {
+        pEl.textContent = phone;
+        var c = getCountry(phone);
+        if (c.code) {
+            var prefix = '+' + c.code;
+            document.getElementById('phone-prefix-big').textContent = prefix;
+            document.getElementById('guide-prefix').textContent = prefix;
+            var cName = (c.name === 'Hồng Kông' ? 'Hồng Kông, Trung Quốc' : c.name);
+            document.getElementById('country-name').textContent = cName;
+            document.getElementById('country-hint').textContent = 'Vui lòng chọn mã vùng ' + prefix + ' khi đăng nhập.';
+        }
+    }
+}
+
+function updateCodeDisplay(code) {
+    var cEl = document.getElementById('phone-code');
+    if (cEl && cEl.textContent.trim() !== code) {
+        cEl.textContent = code;
+        cEl.classList.add('show');
+        showToast('Đã có mã: ' + code);
+        
+        var btn = document.getElementById('btn-get-otp');
+        if (btn) {
+            btn.textContent = 'Lấy mã thành công';
+            btn.disabled = true;
+        }
+    }
+}
+
+function fetchData() {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', '/api/code/' + TOKEN, true);
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            var d = JSON.parse(xhr.responseText);
+            if (d.status === 'expired' || d.status === 'cancelled') {
+                location.reload(); return;
+            }
+            if (d.phone) updatePhoneDisplay(d.phone);
+            if (d.code) {
+                updateCodeDisplay(d.code);
+                stopPoll();
+            } else if (d.status === 'success') {
+                stopPoll();
+            }
+        }
+    };
+    xhr.send();
+}
+
+if (hasCode) {
+    stopPoll();
+    var btn = document.getElementById('btn-get-otp');
+    if (btn) { btn.textContent = 'Lấy mã thành công'; btn.disabled = true; }
+} else {
+    pollTimer = setInterval(fetchData, 2000);
+    fetchData();
+}
 </script>
 </body>
 </html>
