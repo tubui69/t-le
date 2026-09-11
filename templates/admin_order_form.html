@@ -40,16 +40,27 @@
                       placeholder="Ghi chu ve don hang (tuy chon)">{{ order.note if order else '' }}</textarea>
         </div>
 
-        <!-- Wink: Chon che do dang nhap -->
+        <!-- Wink/Meitu: Mat khau tai khoan -->
+        <div class="form-group" id="agent-password-group" style="display:none">
+            <label for="account_password">Mat khau tai khoan</label>
+            <input type="text" id="account_password" name="account_password"
+                   value="{{ order.account_password if order else '' }}"
+                   placeholder="De trong se dung mat khau mac dinh trong Cai dat">
+            <small style="color:#999;font-size:11px;display:block;margin-top:4px">
+                Mat khau giao cho khach. KHONG dung o "Ghi chu" nua.
+            </small>
+        </div>
+
+        <!-- Wink/Meitu: Chon che do dang nhap -->
         <div class="form-group" id="wink-login-mode-group" style="display:none">
-            <label for="login_mode">Che do dang nhap Wink *</label>
+            <label for="login_mode">Che do dang nhap *</label>
             <select id="login_mode" name="login_mode">
                 <option value="otp">SDT + Ma OTP</option>
                 <option value="password_otp">SDT + Mat khau + Nut lay OTP</option>
             </select>
         </div>
 
-        <!-- Wink: Nhieu link dai ly -->
+        <!-- Wink/Meitu: Nhieu link dai ly -->
         <div class="form-group" id="wink-agent-links-group" style="display:none">
             <label for="agent_links">Link dai ly (moi dong 1 link)</label>
             <textarea id="agent_links" name="agent_links" rows="4"
@@ -78,13 +89,14 @@ select {
 (function(){
     var sel=document.getElementById('order_type');
     function toggleWink(){
-        var isWink=(sel.value==='wink'||sel.value==='wink_account');
-        document.getElementById('wink-login-mode-group').style.display=isWink?'block':'none';
-        document.getElementById('wink-agent-links-group').style.display=isWink?'block':'none';
+        var isAgent=(sel.value==='wink'||sel.value==='wink_account'||sel.value==='meitu'||sel.value==='meitu_account');
+        document.getElementById('agent-password-group').style.display=isAgent?'block':'none';
+        document.getElementById('wink-login-mode-group').style.display=isAgent?'block':'none';
+        document.getElementById('wink-agent-links-group').style.display=isAgent?'block':'none';
         // Auto set login_mode based on order_type
-        if(sel.value==='wink_account'){
+        if(sel.value==='wink_account'||sel.value==='meitu_account'){
             document.getElementById('login_mode').value='password_otp';
-        }else if(sel.value==='wink'){
+        }else if(sel.value==='wink'||sel.value==='meitu'){
             document.getElementById('login_mode').value='otp';
         }
     }

@@ -5,6 +5,11 @@ import secrets
 db = SQLAlchemy()
 UTC_PLUS_7 = timezone(timedelta(hours=7))
 
+# Cac loai don dung chung trang khach "dai ly" (SDT + MK + OTP, nhieu link dai ly)
+WINK_TYPES = ("wink", "wink_account")
+MEITU_TYPES = ("meitu", "meitu_account")
+AGENT_TYPES = WINK_TYPES + MEITU_TYPES
+
 def now_vn():
     return datetime.now(UTC_PLUS_7).replace(tzinfo=None)
 
@@ -15,20 +20,50 @@ class Order(db.Model):
     customer_phone = db.Column(db.String(20), nullable=True)
     source_url = db.Column(db.Text, nullable=True)
     token = db.Column(db.String(64), unique=True, nullable=False, default=lambda: secrets.token_urlsafe(16))
-    status = db.Column(db.String(20), default="pending")
-    order_type = db.Column(db.String(20), default="xingtu")
+    status = db.Column(db.String(20), default="pending", index=True)
+    order_type = db.Column(db.String(20), default="xingtu", index=True)
     latest_code = db.Column(db.String(20), nullable=True)
     latest_phone = db.Column(db.String(30), nullable=True)
-    created_at = db.Column(db.DateTime, default=now_vn)
-    expires_at = db.Column(db.DateTime, nullable=True)
+    account_password = db.Column(db.String(200), nullable=True)  # MK tai khoan Wink/Meitu (khong phai note)
+    created_at = db.Column(db.DateTime, default=now_vn, index=True)
+    expires_at = db.Column(db.DateTime, nullable=True, index=True)
     note = db.Column(db.Text, nullable=True)
     error_count = db.Column(db.Integer, default=0)
-    scraping_active = db.Column(db.Boolean, default=False)
+    scraping_active = db.Column(db.Boolean, default=False, index=True)
     scraping_started_at = db.Column(db.DateTime, nullable=True)
     completed_at = db.Column(db.DateTime, nullable=True)
     login_mode = db.Column(db.String(20), default="otp")  # "otp" or "password_otp"
     codes = db.relationship("CodeHistory", backref="order", lazy=True, cascade="all, delete-orphan")
     agent_links = db.relationship("WinkAgentLink", backref="order", lazy=True, cascade="all, delete-orphan")
+
+    @property
+    def display_password(self):
+        """Mat khau hien cho khach: cot rieng -> fallback cuoi. Default theo loai
+        se do view lay tu Setting truoc roi truyen vao, tranh query trong property."""
+        return self.account_password or "AAA123@666"
+
+    def get_display_password(self, settings=None):
+        """Ban day du co doc Setting. Dung trong view/api noi co san dict settings."""
+        if self.account_password:
+            return self.account_password
+        if isinstance(settings, dict):
+            k = "wink_default_password" if self.is_wink else "meitu_default_password"
+            if settings.get(k):
+                return settings[k]
+        return "AAA123@666"
+
+    @property
+    def is_wink(self):
+        return self.order_type in WINK_TYPES
+
+    @property
+    def is_meitu(self):
+        return self.order_type in MEITU_TYPES
+
+    @property
+    def is_agent_type(self):
+        """Wink/Meitu: loai co nhieu link dai ly + nut lay OTP."""
+        return self.order_type in WINK_TYPES + MEITU_TYPES
 
     @property
     def is_expired(self):
@@ -68,7 +103,7 @@ class Order(db.Model):
 class WinkAgentLink(db.Model):
     __tablename__ = "wink_agent_links"
     id = db.Column(db.Integer, primary_key=True)
-    order_id = db.Column(db.Integer, db.ForeignKey("orders.id"), nullable=False)
+    order_id = db.Column(db.Integer, db.ForeignKey("orders.id"), nullable=False, index=True)
     url = db.Column(db.Text, nullable=False)
     agent_name = db.Column(db.String(100), nullable=True)
     created_at = db.Column(db.DateTime, default=now_vn)
@@ -81,7 +116,7 @@ class Setting(db.Model):
 class CodeHistory(db.Model):
     __tablename__ = "code_history"
     id = db.Column(db.Integer, primary_key=True)
-    order_id = db.Column(db.Integer, db.ForeignKey("orders.id"), nullable=False)
+    order_id = db.Column(db.Integer, db.ForeignKey("orders.id"), nullable=False, index=True)
     code = db.Column(db.String(20), nullable=False)
     phone = db.Column(db.String(30), nullable=True)
-    scraped_at = db.Column(db.DateTime, default=now_vn)
+    scraped_at = db.Column(db.DateTime, default=now_vn, index=True)

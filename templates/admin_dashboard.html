@@ -1,36 +1,52 @@
 {% extends "base.html" %}
 {% block title %}Dashboard Admin{% endblock %}
 {% block body %}
+{% set qs = {'status': current_filter, 'type': current_type} %}
+{% if q %}{% set _ = qs.update({'q': q}) %}{% endif %}
+{% if sort != 'created_at' %}{% set _ = qs.update({'sort': sort}) %}{% endif %}
+{% if dir != 'desc' %}{% set _ = qs.update({'dir': dir}) %}{% endif %}
+{% macro sort_url(col, label) -%}
+    {% set nd = 'asc' if (sort == col and dir == 'desc') else 'desc' %}
+    {% set args = {'status': current_filter, 'type': current_type, 'sort': col, 'dir': nd} %}
+    {% if q %}{% set _ = args.update({'q': q}) %}{% endif %}
+    <a class="sort-link{% if sort == col %} sorted{% endif %}" href="{{ url_for('admin_dashboard', **args) }}">
+        {{ label }}<span class="arrow">{% if sort == col %}{{ '▲' if dir == 'asc' else '▼' }}{% endif %}</span>
+    </a>
+{%- endmacro %}
+{% macro page_url(p) -%}
+    {{ url_for('admin_dashboard', status=current_filter, type=current_type, sort=sort, dir=dir, q=q or None, page=p) }}
+{%- endmacro %}
+
 <div class="container">
     <header class="admin-header">
-        <h1>Quan ly don hang</h1>
+        <h1>Quản lý đơn hàng</h1>
         <div class="header-actions">
-            <a href="{{ url_for('admin_order_new') }}" class="btn btn-primary">+ Tao don moi</a>
-            <a href="{{ url_for('admin_settings') }}" class="btn btn-outline">Cai dat</a>
-            <a href="{{ url_for('admin_logout') }}" class="btn btn-outline">Dang xuat</a>
+            <a href="{{ url_for('admin_order_new') }}" class="btn btn-primary">+ Tạo đơn mới</a>
+            <a href="{{ url_for('admin_settings') }}" class="btn btn-outline">Cài đặt</a>
+            <a href="{{ url_for('admin_logout') }}" class="btn btn-outline">Đăng xuất</a>
         </div>
     </header>
 
     <div class="stats-row">
         <div class="stat-card">
             <div class="stat-number">{{ stats.total }}</div>
-            <div class="stat-label">Tong don</div>
+            <div class="stat-label">Tổng đơn</div>
         </div>
         <div class="stat-card stat-pending">
             <div class="stat-number">{{ stats.pending }}</div>
-            <div class="stat-label">Cho URL</div>
+            <div class="stat-label">Chờ URL</div>
         </div>
         <div class="stat-card stat-scraping">
             <div class="stat-number">{{ stats.scraping }}</div>
-            <div class="stat-label">Dang quet</div>
+            <div class="stat-label">Đang quét</div>
         </div>
         <div class="stat-card stat-success">
             <div class="stat-number">{{ stats.success }}</div>
-            <div class="stat-label">Thanh cong</div>
+            <div class="stat-label">Thành công</div>
         </div>
         <div class="stat-card stat-expired">
             <div class="stat-number">{{ stats.expired }}</div>
-            <div class="stat-label">Het han</div>
+            <div class="stat-label">Hết hạn</div>
         </div>
     </div>
 
@@ -43,107 +59,195 @@
             <div class="stat-number">{{ stats.duolingo }}</div>
             <div class="stat-label">Duolingo CDK</div>
         </div>
+        <div class="stat-card" style="border-left-color: #ff8a00;">
+            <div class="stat-number">{{ stats.wink }}</div>
+            <div class="stat-label">Wink</div>
+        </div>
+        <div class="stat-card" style="border-left-color: #7b2ff7;">
+            <div class="stat-number">{{ stats.meitu }}</div>
+            <div class="stat-label">Meitu</div>
+        </div>
     </div>
 
+    <form method="GET" class="search-bar" action="{{ url_for('admin_dashboard') }}">
+        <input type="hidden" name="status" value="{{ current_filter }}">
+        <input type="hidden" name="type" value="{{ current_type }}">
+        <input type="hidden" name="sort" value="{{ sort }}">
+        <input type="hidden" name="dir" value="{{ dir }}">
+        <input type="search" name="q" value="{{ q }}" placeholder="Tìm theo tên, SĐT, mã, token, ghi chú, hoặc #ID..." autocomplete="off">
+        <button type="submit" class="btn btn-primary">Tìm</button>
+        {% if q %}<a href="{{ url_for('admin_dashboard', status=current_filter, type=current_type) }}" class="btn btn-outline">Xóa</a>{% endif %}
+    </form>
+
     <div class="filter-row">
-        <span>Loai:</span>
-        <a href="{{ url_for('admin_dashboard', status=current_filter, type='all') }}"
-           class="filter-btn {% if current_type == 'all' %}active{% endif %}">Tat ca</a>
-        <a href="{{ url_for('admin_dashboard', status=current_filter, type='xingtu') }}"
+        <span>Loại:</span>
+        <a href="{{ url_for('admin_dashboard', status=current_filter, type='all', sort=sort, dir=dir, q=q or None) }}"
+           class="filter-btn {% if current_type == 'all' %}active{% endif %}">Tất cả</a>
+        <a href="{{ url_for('admin_dashboard', status=current_filter, type='xingtu', sort=sort, dir=dir, q=q or None) }}"
            class="filter-btn {% if current_type == 'xingtu' %}active{% endif %}">Xingtu</a>
-        <a href="{{ url_for('admin_dashboard', status=current_filter, type='duolingo') }}"
+        <a href="{{ url_for('admin_dashboard', status=current_filter, type='duolingo', sort=sort, dir=dir, q=q or None) }}"
            class="filter-btn {% if current_type == 'duolingo' %}active{% endif %}">Duolingo</a>
-        <a href="{{ url_for('admin_dashboard', status=current_filter, type='wink') }}"
+        <a href="{{ url_for('admin_dashboard', status=current_filter, type='wink', sort=sort, dir=dir, q=q or None) }}"
            class="filter-btn {% if current_type == 'wink' %}active{% endif %}">Wink</a>
-        <a href="{{ url_for('admin_dashboard', status=current_filter, type='meitu') }}"
+        <a href="{{ url_for('admin_dashboard', status=current_filter, type='meitu', sort=sort, dir=dir, q=q or None) }}"
            class="filter-btn {% if current_type == 'meitu' %}active{% endif %}">Meitu</a>
     </div>
 
     <div class="filter-row">
-        <span>Trang thai:</span>
-        <a href="{{ url_for('admin_dashboard', type=current_type) }}"
-           class="filter-btn {% if current_filter == 'all' %}active{% endif %}">Tat ca</a>
-        <a href="{{ url_for('admin_dashboard', status='pending', type=current_type) }}"
-           class="filter-btn {% if current_filter == 'pending' %}active{% endif %}">Cho URL</a>
-        <a href="{{ url_for('admin_dashboard', status='scraping', type=current_type) }}"
-           class="filter-btn {% if current_filter == 'scraping' %}active{% endif %}">Dang quet</a>
-        <a href="{{ url_for('admin_dashboard', status='success', type=current_type) }}"
-           class="filter-btn {% if current_filter == 'success' %}active{% endif %}">Thanh cong</a>
-        <a href="{{ url_for('admin_dashboard', status='expired', type=current_type) }}"
-           class="filter-btn {% if current_filter == 'expired' %}active{% endif %}">Het han</a>
+        <span>Trạng thái:</span>
+        <a href="{{ url_for('admin_dashboard', type=current_type, sort=sort, dir=dir, q=q or None) }}"
+           class="filter-btn {% if current_filter == 'all' %}active{% endif %}">Tất cả</a>
+        <a href="{{ url_for('admin_dashboard', status='pending', type=current_type, sort=sort, dir=dir, q=q or None) }}"
+           class="filter-btn {% if current_filter == 'pending' %}active{% endif %}">Chờ URL</a>
+        <a href="{{ url_for('admin_dashboard', status='scraping', type=current_type, sort=sort, dir=dir, q=q or None) }}"
+           class="filter-btn {% if current_filter == 'scraping' %}active{% endif %}">Đang quét</a>
+        <a href="{{ url_for('admin_dashboard', status='success', type=current_type, sort=sort, dir=dir, q=q or None) }}"
+           class="filter-btn {% if current_filter == 'success' %}active{% endif %}">Thành công</a>
+        <a href="{{ url_for('admin_dashboard', status='expired', type=current_type, sort=sort, dir=dir, q=q or None) }}"
+           class="filter-btn {% if current_filter == 'expired' %}active{% endif %}">Hết hạn</a>
     </div>
 
     {% if orders %}
-    <div class="table-wrapper">
-        <table class="order-table">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Loai</th>
-                    <th>Khach hang</th>
-                    <th>Trang thai</th>
-                    <th>Ma moi nhat</th>
-                    <th>SĐT tu goc</th>
-                    <th>Ngay tao</th>
-                    <th>Thao tac</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for order in orders %}
-                <tr>
-                    <td>{{ order.id }}</td>
-                    <td>
-                        <span class="type-badge type-{{ order.order_type }}">{{ order.type_display }}</span>
-                    </td>
-                    <td>
-                        <strong>{{ order.customer_name }}</strong>
-                        {% if order.customer_phone %}
-                            <br><small>{{ order.customer_phone }}</small>
-                        {% endif %}
-                    </td>
-                    <td><span class="badge badge-{{ order.status }}">{{ order.status_display }}</span></td>
-                    <td class="code-cell">
-                        {% if order.latest_code %}
-                            <code class="code-badge">{{ order.latest_code }}</code>
-                        {% else %}
-                            <span class="text-muted">—</span>
-                        {% endif %}
-                    </td>
-                    <td class="code-cell">
-                        {% if order.latest_phone %}
-                            <code class="code-badge" style="color: #2ecc71;">{{ order.latest_phone }}</code>
-                        {% else %}
-                            <span class="text-muted">—</span>
-                        {% endif %}
-                    </td>
-                    <td>{{ order.created_at.strftime('%d/%m %H:%M') }}</td>
-                    <td>
-                        <a href="{{ url_for('admin_order_detail', oid=order.id) }}"
-                           class="btn btn-sm btn-outline">Chi tiet</a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <form method="POST" action="{{ url_for('admin_bulk') }}" id="bulk-form">
+        <input type="hidden" name="status" value="{{ current_filter }}">
+        <input type="hidden" name="type" value="{{ current_type }}">
+        <input type="hidden" name="q" value="{{ q }}">
+        <input type="hidden" name="sort" value="{{ sort }}">
+        <input type="hidden" name="dir" value="{{ dir }}">
+        <input type="hidden" name="page" value="{{ pagination.page }}">
+
+        <div class="bulk-toolbar" id="bulk-toolbar">
+            <span class="bulk-count"><b id="bulk-count">0</b> đơn đã chọn</span>
+            <button type="submit" name="action" value="start" class="btn btn-sm btn-primary">Bắt đầu quét</button>
+            <button type="submit" name="action" value="complete" class="btn btn-sm btn-success">Hoàn tất</button>
+            <button type="submit" name="action" value="cancel" class="btn btn-sm btn-warning">Hủy</button>
+            <button type="submit" name="action" value="delete" class="btn btn-sm btn-danger"
+                    onclick="return confirm('Xóa vĩnh viễn các đơn đã chọn? Không thể hoàn tác!');">Xóa</button>
+        </div>
+
+        <!-- ===== Desktop: bảng Excel ===== -->
+        <div class="xl-wrap">
+            <table class="xl">
+                <thead>
+                    <tr>
+                        <th class="xl-check"><input type="checkbox" id="check-all" title="Chọn tất cả"></th>
+                        <th class="xl-id">{{ sort_url('id', '#') }}</th>
+                        <th>{{ sort_url('order_type', 'Loại') }}</th>
+                        <th>{{ sort_url('customer_name', 'Khách hàng') }}</th>
+                        <th>{{ sort_url('status', 'Trạng thái') }}</th>
+                        <th>{{ sort_url('latest_code', 'Mã mới nhất') }}</th>
+                        <th>{{ sort_url('latest_phone', 'SĐT từ gốc') }}</th>
+                        <th>{{ sort_url('created_at', 'Ngày tạo') }}</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                    <tr>
+                        <td class="xl-check"><input type="checkbox" name="ids" value="{{ order.id }}" class="row-check"></td>
+                        <td class="xl-id">{{ order.id }}</td>
+                        <td><span class="type-badge type-{{ order.order_type }}">{{ order.type_display }}</span></td>
+                        <td class="xl-cust">
+                            <strong>{{ order.customer_name }}</strong>
+                            {% if order.customer_phone %}<br><small>{{ order.customer_phone }}</small>{% endif %}
+                        </td>
+                        <td><span class="badge badge-{{ order.status }}">{{ order.status_display }}</span></td>
+                        <td class="num">
+                            {% if order.latest_code %}<code class="code-badge">{{ order.latest_code }}</code>
+                            {% else %}<span class="text-muted">—</span>{% endif %}
+                        </td>
+                        <td class="num">
+                            {% if order.latest_phone %}<code class="code-badge phone">{{ order.latest_phone }}</code>
+                            {% else %}<span class="text-muted">—</span>{% endif %}
+                        </td>
+                        <td class="num">{{ order.created_at.strftime('%d/%m %H:%M') }}</td>
+                        <td><a href="{{ url_for('admin_order_detail', oid=order.id) }}" class="btn btn-sm btn-outline">Chi tiết</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ===== Mobile: thẻ ===== -->
+        <div class="cards">
+            {% for order in orders %}
+            <div class="ocard">
+                <div class="ocard-top">
+                    <label class="ocard-check">
+                        <input type="checkbox" name="ids" value="{{ order.id }}" class="row-check">
+                        <span>#{{ order.id }}</span>
+                    </label>
+                    <span class="type-badge type-{{ order.order_type }}">{{ order.type_display }}</span>
+                    <span class="badge badge-{{ order.status }}">{{ order.status_display }}</span>
+                </div>
+                <div class="ocard-name">{{ order.customer_name }}{% if order.customer_phone %} <small>· {{ order.customer_phone }}</small>{% endif %}</div>
+                <div class="ocard-grid">
+                    <div>
+                        <div class="ocard-lbl">Mã</div>
+                        <div class="ocard-val num">{% if order.latest_code %}{{ order.latest_code }}{% else %}<span class="text-muted">—</span>{% endif %}</div>
+                    </div>
+                    <div>
+                        <div class="ocard-lbl">SĐT gốc</div>
+                        <div class="ocard-val num">{% if order.latest_phone %}{{ order.latest_phone }}{% else %}<span class="text-muted">—</span>{% endif %}</div>
+                    </div>
+                </div>
+                <div class="ocard-foot">
+                    <span class="ocard-date">{{ order.created_at.strftime('%d/%m %H:%M') }}</span>
+                    <a href="{{ url_for('admin_order_detail', oid=order.id) }}" class="btn btn-sm btn-outline">Chi tiết</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </form>
+
+    <div class="pagination">
+        {% if pagination.has_prev %}
+            <a href="{{ page_url(pagination.prev_num) }}">« Trước</a>
+        {% else %}<span class="disabled">« Trước</span>{% endif %}
+        <span class="page-info">Trang {{ pagination.page }} / {{ pagination.pages or 1 }} · {{ pagination.total }} đơn</span>
+        {% if pagination.has_next %}
+            <a href="{{ page_url(pagination.next_num) }}">Sau »</a>
+        {% else %}<span class="disabled">Sau »</span>{% endif %}
     </div>
     {% else %}
     <div class="empty-state">
-        <p>Chua co don hang nao.</p>
-        <a href="{{ url_for('admin_order_new') }}" class="btn btn-primary">+ Tao don dau tien</a>
+        <p>{% if q %}Không tìm thấy đơn nào khớp "{{ q }}".{% else %}Chưa có đơn hàng nào.{% endif %}</p>
+        <a href="{{ url_for('admin_order_new') }}" class="btn btn-primary">+ Tạo đơn</a>
     </div>
     {% endif %}
 </div>
 
-<style>
-.type-badge {
-    display: inline-block; padding: 3px 8px; border-radius: 6px;
-    font-size: 11px; font-weight: 600;
-}
-.type-xingtu { background: #fff3cd; color: #856404; }
-.type-duolingo { background: #d4edda; color: #155724; }
-.type-wink { background: #ffe0cc; color: #a44a00; }
-.type-wink_account { background: #ffe0cc; color: #a44a00; }
-.type-meitu { background: #e0d4fd; color: #4a148c; }
-.type-meitu_account { background: #e0d4fd; color: #4a148c; }
-</style>
+<script>
+(function(){
+    var boxes = Array.prototype.slice.call(document.querySelectorAll('.row-check'));
+    var all = document.getElementById('check-all');
+    var bar = document.getElementById('bulk-toolbar');
+    var cnt = document.getElementById('bulk-count');
+    if (!boxes.length) return;
+
+    function sync(){
+        var n = boxes.filter(function(b){ return b.checked; }).length;
+        if (cnt) cnt.textContent = n;
+        if (bar) bar.classList.toggle('show', n > 0);
+        if (all) {
+            all.checked = (n === boxes.length && n > 0);
+            all.indeterminate = (n > 0 && n < boxes.length);
+        }
+        // 2 checkbox cho cung 1 don (bang + the) phai dong bo voi nhau
+        var byVal = {};
+        boxes.forEach(function(b){ (byVal[b.value] = byVal[b.value] || []).push(b); });
+        Object.keys(byVal).forEach(function(k){
+            var group = byVal[k];
+            var on = group.some(function(b){ return b.checked; });
+            group.forEach(function(b){ b.checked = on; });
+        });
+    }
+    if (all) all.addEventListener('change', function(){
+        boxes.forEach(function(b){ b.checked = all.checked; });
+        sync();
+    });
+    boxes.forEach(function(b){ b.addEventListener('change', sync); });
+    sync();
+})();
+</script>
 {% endblock %}
