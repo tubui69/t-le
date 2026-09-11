@@ -147,6 +147,22 @@ def _xt(o):
         if not o.scraping_active: o.start_scraping(); db.session.commit()
         scraper.request_scrape(o.id)
     return render_template("customer_xingtu.html", order=o, code=o.latest_code, phone=o.latest_phone)
+def detect_prefix(phone):
+    """Tach dau so quoc te tu SDT: +1 (My), +86 (TQ), +852 (HK), +84 (VN)"""
+    if not phone: return None
+    p = phone.strip().replace(" ","").replace("-","").replace("(","").replace(")","")
+    if p.startswith("+"): p = p[1:]
+    p = "".join(c for c in p if c.isdigit())
+    if not p: return None
+    if p.startswith("852") and len(p) >= 11: return "+852"
+    if p.startswith("86") and len(p) >= 12: return "+86"
+    if p.startswith("84") and len(p) >= 11: return "+84"
+    if p.startswith("1") and len(p) >= 11: return "+1"
+    if len(p) == 10: return "+1"
+    if p.startswith("86"): return "+86"
+    if p.startswith("84"): return "+84"
+    if p.startswith("1"): return "+1"
+    return "+" + p[:2]
 def _wk(o):
     try:
         if o.status=="cancelled": return render_template("customer_wink.html", order=o, code=None, phone=None, cancelled=True)
@@ -156,13 +172,7 @@ def _wk(o):
             if not o.scraping_active: o.start_scraping(); db.session.commit()
             scraper.request_scrape(o.id)
         # Tach dau so tu SDT
-        phone_prefix = None
-        if o.latest_phone:
-            p = o.latest_phone.strip().replace(" ","").replace("-","")
-            if p.startswith("+"):
-                phone_prefix = "+" + "".join(c for c in p[1:] if c.isdigit())[:4]
-            elif p.isdigit() and len(p) >= 8:
-                phone_prefix = "+" + p[:3] if p.startswith("8") else "+" + p[:2]
+        phone_prefix = detect_prefix(o.latest_phone)
         login_mode = o.login_mode or "otp"
         agent_links = [{"url": l.url, "name": l.agent_name} for l in o.agent_links] if o.agent_links else []
         return render_template("customer_wink.html", order=o, code=o.latest_code, phone=o.latest_phone,

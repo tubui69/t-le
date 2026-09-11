@@ -65,12 +65,10 @@ body{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);font-family:-app
         <div class="wk-banner-sub">{{ order.customer_name }} | {{ 'SDT + Mat khau + OTP' if login_mode == 'password_otp' else 'SDT + Ma OTP' }}</div>
     </div>
 </div>
-{% if phone_prefix %}
 <div class="wk-prefix-box">
     <span class="wk-prefix-label">Dau so (tu SDT):</span>
-    <span class="wk-prefix-val" id="phone-prefix">{{ phone_prefix }}</span>
+    <span class="wk-prefix-val" id="phone-prefix">{% if phone_prefix %}{{ phone_prefix }}{% else %}<span class="wk-wait"><span class="wk-sp"></span>Dang quet...</span>{% endif %}</span>
 </div>
-{% endif %}
 <div class="wk-tabs">
     <button class="wk-tab {% if login_mode != 'password_otp' %}active{% endif %}" onclick="switchTab('otp')">SDT + OTP</button>
     <button class="wk-tab {% if login_mode == 'password_otp' %}active{% endif %}" onclick="switchTab('pw')">SDT + MK + OTP</button>
@@ -111,7 +109,7 @@ body{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);font-family:-app
     <div class="wk-guide-title">Huong dan:</div>
     <div class="wk-guide-item">1. Thoat tai khoan hien tai khoi app Wink</div>
     <div class="wk-guide-item">2. Chon dang nhap bang SDT</div>
-    <div class="wk-guide-item">3. Chon khu vuc <b id="guide-prefix">{{ phone_prefix if phone_prefix else '+852' }}</b> - sao chep SDT</div>
+    <div class="wk-guide-item">3. Chon khu vuc <b id="guide-prefix">{{ phone_prefix if phone_prefix else '...' }}</b> - sao chep SDT</div>
     <div class="wk-guide-item">4. {% if login_mode == 'password_otp' %}Nhap mat khau, bam <b>"Lay ma OTP"</b> roi nhap ma{% else %}Trong 5 phut su dung SDT de dang nhap{% endif %}</div>
 </div>
 <div class="wk-status" id="statusBar"><span class="wk-dot"></span><span id="statusText">Tu dong cap nhat moi 5 giay</span></div>
@@ -128,7 +126,7 @@ function stopPoll(msg){if(pollTimer){clearInterval(pollTimer);pollTimer=null}var
 function setExpire(){var d=new Date();d.setDate(d.getDate()+30);var s=d.toLocaleDateString('vi-VN');var el=document.getElementById('expire-date');if(el)el.textContent=s}
 setExpire();
 function requestOtp(){var btn=document.getElementById('btn-get-otp');if(btn.disabled)return;btn.disabled=true;btn.textContent='Dang lay OTP...';var xhr=new XMLHttpRequest();xhr.open('POST','/api/wink-request-otp/'+TOKEN,true);xhr.onload=function(){if(xhr.status===200){showToast('Da yeu cau OTP moi');setTimeout(function(){btn.disabled=false;btn.textContent='Lay ma OTP'},30000)}else{btn.disabled=false;btn.textContent='Lay ma OTP';showToast('Loi khi yeu cau OTP')}};xhr.onerror=function(){btn.disabled=false;btn.textContent='Lay ma OTP';showToast('Loi ket noi')};xhr.send()}
-function updatePhoneDisplay(phone){['phone','phone2'].forEach(function(id,idx){var pEl=document.getElementById(id);var pBtn=document.getElementById(idx===0?'btn-phone':'btn-phone2');if(pEl){var cur=pEl.textContent.trim();if(cur.indexOf('Dang')===0||cur!==phone){pEl.textContent=phone;pEl.parentElement.classList.add('wk-flash');setTimeout((function(el){return function(){el.classList.remove('wk-flash')}})(pEl.parentElement),500);if(pBtn)pBtn.classList.remove('wk-hidden')}}});if(phone){var clean=phone.replace(/[^0-9+]/g,'');var prefix='';if(clean.charAt(0)==='+'){prefix='+'+clean.substring(1,5)}else if(clean.length>=8){prefix=clean.charAt(0)==='8'?'+'+clean.substring(0,3):'+'+clean.substring(0,2)}var pfEl=document.getElementById('phone-prefix');if(pfEl&&prefix)pfEl.textContent=prefix;var gpEl=document.getElementById('guide-prefix');if(gpEl&&prefix)gpEl.textContent=prefix}}
+function updatePhoneDisplay(phone){['phone','phone2'].forEach(function(id,idx){var pEl=document.getElementById(id);var pBtn=document.getElementById(idx===0?'btn-phone':'btn-phone2');if(pEl){var cur=pEl.textContent.trim();if(cur.indexOf('Dang')===0||cur!==phone){pEl.textContent=phone;pEl.parentElement.classList.add('wk-flash');setTimeout((function(el){return function(){el.classList.remove('wk-flash')}})(pEl.parentElement),500);if(pBtn)pBtn.classList.remove('wk-hidden')}}});if(phone){var clean=phone.replace(/[^0-9+]/g,'');if(clean.charAt(0)==='+'){clean=clean.substring(1)}var prefix='';if(clean.indexOf('852')===0&&clean.length>=11){prefix='+852'}else if(clean.indexOf('86')===0&&clean.length>=12){prefix='+86'}else if(clean.indexOf('84')===0&&clean.length>=11){prefix='+84'}else if(clean.indexOf('1')===0&&clean.length>=11){prefix='+1'}else if(clean.length===10){prefix='+1'}else if(clean.indexOf('86')===0){prefix='+86'}else if(clean.indexOf('84')===0){prefix='+84'}else if(clean.indexOf('1')===0){prefix='+1'}else{prefix='+'+clean.substring(0,2)}var pfEl=document.getElementById('phone-prefix');if(pfEl&&prefix)pfEl.textContent=prefix;var gpEl=document.getElementById('guide-prefix');if(gpEl&&prefix)gpEl.textContent=prefix}}
 function updateCodeDisplay(code){var cEl=document.getElementById('phone-code'),cBtn=document.getElementById('btn-code');var oEl=document.getElementById('otp-code'),oBtn=document.getElementById('btn-otp');if(cEl){var cu=cEl.textContent.trim();if(cu.indexOf('Dang')===0||cu!==code){cEl.textContent=code;cEl.parentElement.classList.add('wk-flash');setTimeout(function(){cEl.parentElement.classList.remove('wk-flash')},500);if(cBtn)cBtn.classList.remove('wk-hidden')}}if(oEl){var ou=oEl.textContent.trim();if(ou.indexOf('Dang')===0||ou.indexOf('Bam')===0||ou!==code){oEl.textContent=code;oEl.parentElement.classList.add('wk-flash');setTimeout(function(){oEl.parentElement.classList.remove('wk-flash')},500);if(oBtn)oBtn.classList.remove('wk-hidden')}}showToast('Ma Wink: '+code)}
 function fetchData(){var xhr=new XMLHttpRequest();xhr.open('GET','/api/code/'+TOKEN,true);xhr.onload=function(){if(xhr.status===200){var d=JSON.parse(xhr.responseText);if(d.status==='expired'||d.status==='cancelled'){location.reload();return}if(d.phone)updatePhoneDisplay(d.phone);if(d.code){updateCodeDisplay(d.code);stopPoll('Da lay ma thanh cong');return}if(d.status==='success'){stopPoll('Da hoan thanh');return}}};xhr.onerror=function(){var t=document.getElementById('statusText');if(t)t.textContent='Mat ket noi...'};xhr.send()}
 if(hasCode){stopPoll('Da co ma - dung quet')}else{pollTimer=setInterval(fetchData,5000);fetchData()}
