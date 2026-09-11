@@ -5,7 +5,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 logging.basicConfig(format='%(asctime)s-%(name)s-%(levelname)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
-TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN', 'YOUR_BOT_TOKEN_HERE')
+TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN', '8845577933:AAHBEsql9VNOy78rYNFCxx-iqRE84pJfJgM')
 WEB = os.environ.get('WEB_BASE_URL', 'http://74.81.39.45')
 DB = os.environ.get('DATABASE_URL', 'sqlite:///data.db')
 engine = create_engine(DB); Session = sessionmaker(bind=engine)
@@ -31,13 +31,28 @@ def extract_urls(text):
         u = u.rstrip('.,;:!?)]}')
         if u not in seen: seen.add(u); result.append(u)
     return result
-def create_order(url, name='TG User'):
+def create_order(url, name='TG User', login_mode='otp', extra_urls=None):
     s = Session()
     try:
         ot = detect_type(url)
+        # Neu la wink va co login_mode=password_otp => order_type=wink_account
+        if ot == 'wink' and login_mode == 'password_otp':
+            ot = 'wink_account'
         o = Order(customer_name=name, source_url=url, status='pending',
-                  token=secrets.token_urlsafe(16), order_type=ot, error_count=0, scraping_active=False)
-        o.set_expiry(3); s.add(o); s.commit(); s.refresh(o)
+                  token=secrets.token_urlsafe(16), order_type=ot, error_count=0,
+                  scraping_active=False, login_mode=login_mode)
+        o.set_expiry(3); s.add(o); s.flush()
+        # Luu nhieu link dai ly cho Wink
+        if ot in ('wink', 'wink_account') and extra_urls:
+            from models import WinkAgentLink
+            all_urls = [url] + extra_urls
+            for u in all_urls:
+                parts = u.split('|', 1)
+                link = parts[0].strip()
+                agent_name = parts[1].strip() if len(parts) > 1 else None
+                if link:
+                    s.add(WinkAgentLink(order_id=o.id, url=link, agent_name=agent_name))
+        s.commit(); s.refresh(o)
         return o.id, get_link(o.token, ot), ot
     except Exception as e:
         s.rollback(); logger.error(f'Error: {e}'); return None, None, None
@@ -47,10 +62,11 @@ async def cmd_start(update, ctx):
          'Gui link -> Bot tao don va tra ve link lay ma.\n\n'
          '\U0001f989 Duolingo: `https://dlg.llii.me/idxx?k=ABC`\n'
          '\U0001f511 Xingtu: `http://47.103.212.73/wap?key=ABC`\n'
-         '\U0001f4f1 Wink: `https://a.wmrjkf.com/url/xxx`\n\n'
+         '\U0001f4f1 Wink SDT+OTP: `https://a.wmrjkf.com/url/xxx`\n'
+         '\U0001f512 Wink SDT+MK+OTP: dung lenh /winkmk\n\n'
          '\U0001f4ce Gui *nhieu link* trong 1 tin nhan!\n'
          '\U0001f4dd Loc link tu van ban.\n\n'
-         '/help | /stats')
+         '*Lenh:* /start | /help | /stats | /winkmk')
     await update.message.reply_text(t, parse_mode='Markdown')
 async def cmd_help(update, ctx):
     t = (f'*Huong dan:*\n\n'
@@ -65,9 +81,22 @@ async def cmd_stats(update, ctx):
         t = s.query(Order).count()
         sc = s.query(Order).filter_by(status='scraping').count()
         ok = s.query(Order).filter_by(status='success').count()
-        await update.message.reply_text(f'\U0001f4ca Tong: *{t}* | Quet: {sc} | Xong: {ok}', parse_mode='Markdown')
+        wk = s.query(Order).filter(Order.order_type.in_(['wink','wink_account'])).count()
+        await update.message.reply_text(f'\U0001f4ca Tong: *{t}* | Quet: {sc} | Xong: {ok} | Wink: {wk}', parse_mode='Markdown')
     except: await update.message.reply_text('Loi!')
     finally: s.close()
+
+# Che do winkmk: SDT + Mat khau + OTP
+_winkmk_users = set()
+async def cmd_winkmk(update, ctx):
+    uid = update.effective_user.id
+    _winkmk_users.add(uid)
+    await update.message.reply_text(
+        '\U0001f512 *Che do Wink SDT + MK + OTP*\n\n'
+        'Gui link Wink (nhieu link duoc) de tao don.\n'
+        'Trang web se co o nhap mat khau + nut lay OTP.\n\n'
+        'Dung /start de quay ve che do binh thuong.',
+        parse_mode='Markdown')
 async def handle_msg(update, ctx):
     urls = extract_urls(update.message.text)
     if not urls:
@@ -75,6 +104,38 @@ async def handle_msg(update, ctx):
             '❌ Khong tim thay link!\nGui nhieu link cung luc duoc!', parse_mode='Markdown')
         return
     name = f'TG: {update.effective_user.first_name or update.effective_user.username}'
+    uid = update.effective_user.id
+    # Kiem tra che do winkmk
+    is_winkmk = uid in _winkmk_users
+    # Loc link wink vs non-wink
+    wink_urls = [u for u in urls if detect_type(u) == 'wink']
+    other_urls = [u for u in urls if detect_type(u) != 'wink']
+    # Neu dang o che do winkmk va co link wink => tao 1 order voi nhieu link dai ly
+    if is_winkmk and wink_urls:
+        first_url = wink_urls[0]
+        extra = wink_urls[1:] if len(wink_urls) > 1 else None
+        oid, link, ot = create_order(first_url, name, login_mode='password_otp', extra_urls=extra)
+        if oid:
+            lb = 'Wink SDT+MK+OTP'
+            n_links = len(wink_urls)
+            msg = f'\U0001f512 *{lb}* #{oid}\n'
+            if n_links > 1:
+                msg += f'\U0001f4ce {n_links} link dai ly\n'
+            msg += f'\U0001f310 {link}'
+            await update.message.reply_text(msg, parse_mode='Markdown')
+            # Xoa user khoi che do winkmk sau khi tao don
+            _winkmk_users.discard(uid)
+        else:
+            await update.message.reply_text('❌ Loi tao don Wink MK!', parse_mode='Markdown')
+        # Xu ly cac link khac (non-wink) binh thuong
+        for url in other_urls:
+            oid2, link2, ot2 = create_order(url, name)
+            if oid2:
+                ic = '\U0001f989' if ot2 == 'duolingo' else '\U0001f511'
+                lb2 = 'Duolingo' if ot2 == 'duolingo' else 'Xingtu'
+                await update.message.reply_text(f'{ic} *{lb2}* #{oid2}\n`{url}`\n\U0001f310 {link2}', parse_mode='Markdown')
+        return
+    # Binh thuong: moi link tao 1 order rieng
     if len(urls) > 1:
         await update.message.reply_text(f'⏳ Tao *{len(urls)}* don...', parse_mode='Markdown')
     for url in urls:
@@ -95,6 +156,7 @@ def main():
     a.add_handler(CommandHandler('start', cmd_start))
     a.add_handler(CommandHandler('help', cmd_help))
     a.add_handler(CommandHandler('stats', cmd_stats))
+    a.add_handler(CommandHandler('winkmk', cmd_winkmk))
     a.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_msg))
     a.add_error_handler(on_error)
     print('Bot started!'); a.run_polling(allowed_updates=Update.ALL_TYPES)
