@@ -13,7 +13,8 @@
             <select id="order_type" name="order_type" required>
                 <option value="xingtu" {% if order and order.order_type == 'xingtu' %}selected{% endif %}>Xingtu — Ma xac minh</option>
                 <option value="duolingo" {% if order and order.order_type == 'duolingo' %}selected{% endif %}>Duolingo CDK — Ma nap Super</option>
-                <option value="wink" {% if order and order.order_type == 'wink' %}selected{% endif %}>Wink — SĐT + Ma code</option>
+                <option value="wink" {% if order and order.order_type == 'wink' %}selected{% endif %}>Wink — SDT + Ma code</option>
+                <option value="wink_account" {% if order and order.order_type == 'wink_account' %}selected{% endif %}>Wink — SDT + MK + Ma code</option>
             </select>
         </div>
 
@@ -37,6 +38,25 @@
                       placeholder="Ghi chu ve don hang (tuy chon)">{{ order.note if order else '' }}</textarea>
         </div>
 
+        <!-- Wink: Chon che do dang nhap -->
+        <div class="form-group" id="wink-login-mode-group" style="display:none">
+            <label for="login_mode">Che do dang nhap Wink *</label>
+            <select id="login_mode" name="login_mode">
+                <option value="otp">SDT + Ma OTP</option>
+                <option value="password_otp">SDT + Mat khau + Nut lay OTP</option>
+            </select>
+        </div>
+
+        <!-- Wink: Nhieu link dai ly -->
+        <div class="form-group" id="wink-agent-links-group" style="display:none">
+            <label for="agent_links">Link dai ly (moi dong 1 link)</label>
+            <textarea id="agent_links" name="agent_links" rows="4"
+                      placeholder="https://link-dai-ly-1.com&#10;https://link-dai-ly-2.com&#10;https://link-dai-ly-3.com | TenDaiLy"></textarea>
+            <small style="color:#999;font-size:11px;margin-top:4px;display:block">
+                Dinh dang: URL hoac URL | TenDaiLy. Moi dong la 1 link dai ly.
+            </small>
+        </div>
+
         <div class="form-actions">
             <button type="submit" class="btn btn-primary">
                 {{ 'Cap nhat' if order else 'Tao don' }}
@@ -52,4 +72,22 @@ select {
     border-radius: 8px; font-size: 14px; background: white;
 }
 </style>
+<script>
+(function(){
+    var sel=document.getElementById('order_type');
+    function toggleWink(){
+        var isWink=(sel.value==='wink'||sel.value==='wink_account');
+        document.getElementById('wink-login-mode-group').style.display=isWink?'block':'none';
+        document.getElementById('wink-agent-links-group').style.display=isWink?'block':'none';
+        // Auto set login_mode based on order_type
+        if(sel.value==='wink_account'){
+            document.getElementById('login_mode').value='password_otp';
+        }else if(sel.value==='wink'){
+            document.getElementById('login_mode').value='otp';
+        }
+    }
+    sel.addEventListener('change',toggleWink);
+    toggleWink();
+})();
+</script>
 {% endblock %}

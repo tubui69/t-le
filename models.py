@@ -26,7 +26,9 @@ class Order(db.Model):
     scraping_active = db.Column(db.Boolean, default=False)
     scraping_started_at = db.Column(db.DateTime, nullable=True)
     completed_at = db.Column(db.DateTime, nullable=True)
+    login_mode = db.Column(db.String(20), default="otp")  # "otp" or "password_otp"
     codes = db.relationship("CodeHistory", backref="order", lazy=True, cascade="all, delete-orphan")
+    agent_links = db.relationship("WinkAgentLink", backref="order", lazy=True, cascade="all, delete-orphan")
 
     @property
     def is_expired(self):
@@ -46,7 +48,7 @@ class Order(db.Model):
 
     @property
     def type_display(self):
-        return {"xingtu":"Xingtu","duolingo":"Duolingo","wink":"Wink"}.get(self.order_type, self.order_type)
+        return {"xingtu":"Xingtu","duolingo":"Duolingo","wink":"Wink SDT+Ma","wink_account":"Wink SDT+MK+Ma"}.get(self.order_type, self.order_type)
 
     def generate_token(self):
         self.token = secrets.token_urlsafe(16)
@@ -61,6 +63,14 @@ class Order(db.Model):
         self.scraping_active = True; self.scraping_started_at = now_vn(); self.status = "scraping"
     def complete_scraping(self):
         self.scraping_active = False; self.status = "success"; self.completed_at = now_vn()
+
+class WinkAgentLink(db.Model):
+    __tablename__ = "wink_agent_links"
+    id = db.Column(db.Integer, primary_key=True)
+    order_id = db.Column(db.Integer, db.ForeignKey("orders.id"), nullable=False)
+    url = db.Column(db.Text, nullable=False)
+    agent_name = db.Column(db.String(100), nullable=True)
+    created_at = db.Column(db.DateTime, default=now_vn)
 
 class CodeHistory(db.Model):
     __tablename__ = "code_history"

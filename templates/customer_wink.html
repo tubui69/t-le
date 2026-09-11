@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
@@ -7,32 +7,26 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
-.wk-card{background:#fff;border-radius:20px;max-width:420px;width:100%;padding:28px 24px;box-shadow:0 20px 60px rgba(0,0,0,0.15)}
+.wk-card{background:#fff;border-radius:20px;max-width:440px;width:100%;padding:28px 24px;box-shadow:0 20px 60px rgba(0,0,0,0.15)}
 .wk-badge{text-align:center;margin-bottom:16px}
 .wk-badge span{display:inline-block;background:#f0faf0;color:#4caf50;font-size:12px;font-weight:600;padding:4px 16px;border-radius:20px;border:1px solid #c8e6c9}
 .wk-banner{background:linear-gradient(135deg,#ff8a00,#ff6b35);border-radius:14px;padding:18px 20px;display:flex;align-items:center;gap:14px;margin-bottom:20px;color:#fff}
 .wk-banner-code{font-size:28px;font-weight:900;letter-spacing:1px}
-.wk-banner-info{flex:1}
-.wk-banner-title{font-size:16px;font-weight:700}
-.wk-banner-sub{font-size:11px;opacity:0.9;margin-top:2px}
-.wk-row{display:flex;align-items:center;padding:14px 0;border-bottom:1px solid #f0f0f0}
-.wk-row:last-of-type{border-bottom:none}
-.wk-label{color:#999;font-size:14px;width:40px;flex-shrink:0}
+.wk-banner-info{flex:1}.wk-banner-title{font-size:16px;font-weight:700}.wk-banner-sub{font-size:11px;opacity:0.9;margin-top:2px}
+.wk-row{display:flex;align-items:center;padding:14px 0;border-bottom:1px solid #f0f0f0}.wk-row:last-of-type{border-bottom:none}
+.wk-label{color:#999;font-size:14px;width:50px;flex-shrink:0}
 .wk-value{flex:1;font-size:18px;font-weight:700;color:#333;letter-spacing:1px}
 .wk-copy{background:none;border:1px solid #ddd;border-radius:8px;padding:6px 14px;font-size:12px;color:#666;cursor:pointer;display:flex;align-items:center;gap:4px;transition:all 0.2s;white-space:nowrap}
-.wk-copy:hover{border-color:#ff6b35;color:#ff6b35;background:#fff5f0}
-.wk-copy svg{width:14px;height:14px}
+.wk-copy:hover{border-color:#ff6b35;color:#ff6b35;background:#fff5f0}.wk-copy svg{width:14px;height:14px}
 .wk-btn-all{width:100%;padding:14px;border:none;border-radius:12px;background:linear-gradient(135deg,#ff8a00,#ff6b35);color:#fff;font-size:15px;font-weight:700;cursor:pointer;margin:16px 0;transition:all 0.2s;box-shadow:0 4px 15px rgba(255,107,53,0.3)}
 .wk-btn-all:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(255,107,53,0.4)}
-.wk-expire{text-align:center;font-size:13px;color:#999;margin-bottom:16px}
-.wk-expire b{color:#ff6b35}
+.wk-expire{text-align:center;font-size:13px;color:#999;margin-bottom:16px}.wk-expire b{color:#ff6b35}
 .wk-notice{background:#fff8e1;border:1px solid #ffe082;border-radius:12px;padding:14px 16px;margin-bottom:16px}
 .wk-notice-title{display:flex;align-items:center;gap:6px;font-size:13px;color:#f57f17;font-weight:600;margin-bottom:6px}
 .wk-notice-text{font-size:12px;color:#888;line-height:1.6}
 .wk-guide{background:#f9f9f9;border-radius:12px;padding:16px;margin-bottom:16px}
 .wk-guide-title{font-size:14px;font-weight:700;color:#333;margin-bottom:10px}
-.wk-guide-item{font-size:12px;color:#666;line-height:2;padding-left:4px}
-.wk-guide-item b{color:#ff6b35}
+.wk-guide-item{font-size:12px;color:#666;line-height:2;padding-left:4px}.wk-guide-item b{color:#ff6b35}
 .wk-status{display:flex;align-items:center;justify-content:center;gap:6px;padding:10px;font-size:11px;color:#bbb}
 .wk-dot{width:6px;height:6px;border-radius:50%;background:#4caf50;animation:wp 2s infinite}
 .wk-status.done .wk-dot{background:#ccc;animation:none}
@@ -41,81 +35,103 @@ body{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);font-family:-app
 .wk-sp{width:12px;height:12px;border:2px solid #eee;border-top-color:#ff6b35;border-radius:50%;animation:wspin 0.8s linear infinite;display:inline-block;vertical-align:middle;margin-right:4px}
 @keyframes wspin{to{transform:rotate(360deg)}}
 .wk-hidden{display:none!important}
-.wk-alert{text-align:center;padding:40px 20px}
-.wk-alert h2{color:#e65100;font-size:18px;margin-bottom:8px}
-.wk-alert p{color:#999;font-size:13px}
-.wk-toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(80px);background:#333;color:#fff;padding:10px 24px;border-radius:25px;font-size:13px;opacity:0;transition:all 0.3s;z-index:9999;pointer-events:none}
+.wk-alert{text-align:center;padding:40px 20px}.wk-alert h2{color:#e65100;font-size:18px;margin-bottom:8px}.wk-alert p{color:#999;font-size:13px}
+.wk-toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(80px);background:#333;color:#fff;padding:10px 24px;border-radius:25px;font-size:13px;opacity:0;transition:all 0.3s;z-index:999;pointer-events:none}
 .wk-toast.show{transform:translateX(-50%) translateY(0);opacity:1}
-.wk-flash{animation:wf 0.5s ease}
-@keyframes wf{0%{background:#fff3e0}100%{background:transparent}}
+.wk-flash{animation:wflash 0.5s ease}@keyframes wflash{0%{background:#fff3e0}100%{background:transparent}}
+.wk-tabs{display:flex;gap:0;margin-bottom:18px;border-radius:12px;overflow:hidden;border:1px solid #eee}
+.wk-tab{flex:1;padding:12px 8px;text-align:center;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;background:#f9f9f9;color:#999;border:none}
+.wk-tab.active{background:linear-gradient(135deg,#ff8a00,#ff6b35);color:#fff}.wk-tab:hover:not(.active){background:#f0f0f0;color:#666}
+.wk-panel{display:none}.wk-panel.active{display:block}
+.wk-pw-field{width:100%;padding:12px 14px;border:1px solid #ddd;border-radius:10px;font-size:15px;font-weight:600;letter-spacing:1px;margin-bottom:10px;color:#333;outline:none;transition:border 0.2s}
+.wk-pw-field:focus{border-color:#ff6b35}
+.wk-btn-otp{width:100%;padding:12px;border:2px solid #ff6b35;border-radius:12px;background:#fff;color:#ff6b35;font-size:14px;font-weight:700;cursor:pointer;transition:all 0.2s;margin-top:6px}
+.wk-btn-otp:hover{background:#ff6b35;color:#fff}.wk-btn-otp:disabled{opacity:0.5;cursor:not-allowed}
+.wk-prefix-box{background:#e8f5e9;border:1px solid #c8e6c9;border-radius:10px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+.wk-prefix-label{font-size:12px;color:#666}.wk-prefix-val{font-size:16px;font-weight:700;color:#2e7d32;letter-spacing:1px}
 </style>
 </head>
 <body>
-<div class="wk-card">
-{% if cancelled is defined and cancelled %}
-<div class="wk-alert"><h2>Don hang da bi huy</h2><p>Vui long lien he nguoi ban.</p></div>
-{% elif expired is defined and expired %}
-<div class="wk-alert"><h2>Lien ket da het han</h2><p>Vui long lien he nguoi ban de duoc ho tro.</p></div>
+<div class="wk-card">{% if cancelled %}
+<div class="wk-alert"><h2>Don da bi huy</h2><p>Lien he admin.</p></div>
+{% elif expired %}
+<div class="wk-alert"><h2>Don da het han</h2><p>Token da het han.</p></div>
 {% else %}
-
-<div class="wk-badge"><span>30 ngay goi</span></div>
-
+<div class="wk-badge"><span>WINK ACCOUNT</span></div>
 <div class="wk-banner">
-    <div class="wk-banner-code">+852</div>
+    <div class="wk-banner-code">W</div>
     <div class="wk-banner-info">
-        <div class="wk-banner-title">Wink - Hong Kong</div>
-        <div class="wk-banner-sub">Dang nhap vui long chon khu vuc +852</div>
+        <div class="wk-banner-title">Wink - Dang nhap dai ly</div>
+        <div class="wk-banner-sub">{{ order.customer_name }} | {{ 'SDT + Mat khau + OTP' if login_mode == 'password_otp' else 'SDT + Ma OTP' }}</div>
     </div>
 </div>
-
-<div class="wk-row">
-    <span class="wk-label">So:</span>
-    <span class="wk-value" id="phone">{% if phone %}{{ phone }}{% else %}<span class="wk-wait"><span class="wk-sp"></span>Dang lay...</span>{% endif %}</span>
-    <button class="wk-copy {% if not phone %}wk-hidden{% endif %}" id="btn-phone" onclick="copyText('phone')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v3"/></svg> Sao chep</button>
+{% if phone_prefix %}
+<div class="wk-prefix-box">
+    <span class="wk-prefix-label">Dau so (tu SDT):</span>
+    <span class="wk-prefix-val" id="phone-prefix">{{ phone_prefix }}</span>
 </div>
-
-<div class="wk-row">
-    <span class="wk-label">Ma:</span>
-    <span class="wk-value" id="phone-code">{% if code %}{{ code }}{% else %}<span class="wk-wait"><span class="wk-sp"></span>Dang cho ma...</span>{% endif %}</span>
-    <button class="wk-copy {% if not code %}wk-hidden{% endif %}" id="btn-code" onclick="copyText('phone-code')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v3"/></svg> Sao chep</button>
+{% endif %}
+<div class="wk-tabs">
+    <button class="wk-tab {% if login_mode != 'password_otp' %}active{% endif %}" onclick="switchTab('otp')">SDT + OTP</button>
+    <button class="wk-tab {% if login_mode == 'password_otp' %}active{% endif %}" onclick="switchTab('pw')">SDT + MK + OTP</button>
 </div>
-
-<button class="wk-btn-all" onclick="copyAll()">Mot click sao chep so + ma</button>
-
-<div class="wk-expire">Het han: <b id="expire-date">--</b></div>
-
-<div class="wk-notice">
-    <div class="wk-notice-title">&#9432; Luu y quan trong</div>
-    <div class="wk-notice-text">Uu tien dang nhap bang SDT + ma xac minh. Ma xac minh chi lay duoc 1 lan, co hieu luc 5 phut, dung gui lai nhieu lan.</div>
+<div class="wk-panel {% if login_mode != 'password_otp' %}active{% endif %}" id="panel-otp">
+    <div class="wk-row">
+        <span class="wk-label">SDT:</span>
+        <span class="wk-value" id="phone">{% if phone %}{{ phone }}{% else %}<span class="wk-wait"><span class="wk-sp"></span>Dang quet...</span>{% endif %}</span>
+        <button class="wk-copy {% if not phone %}wk-hidden{% endif %}" id="btn-phone" onclick="copyText('phone')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Copy</button>
+    </div>
+    <div class="wk-row">
+        <span class="wk-label">Ma:</span>
+        <span class="wk-value" id="phone-code">{% if code %}{{ code }}{% else %}<span class="wk-wait"><span class="wk-sp"></span>Dang cho...</span>{% endif %}</span>
+        <button class="wk-copy {% if not code %}wk-hidden{% endif %}" id="btn-code" onclick="copyText('phone-code')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Copy</button>
+    </div>
+    <button class="wk-btn-all" onclick="copyAll()">Sao chep SDT + Ma</button>
 </div>
-
+<div class="wk-panel {% if login_mode == 'password_otp' %}active{% endif %}" id="panel-pw">
+    <div class="wk-row">
+        <span class="wk-label">SDT:</span>
+        <span class="wk-value" id="phone2">{% if phone %}{{ phone }}{% else %}<span class="wk-wait"><span class="wk-sp"></span>Dang quet...</span>{% endif %}</span>
+        <button class="wk-copy {% if not phone %}wk-hidden{% endif %}" id="btn-phone2" onclick="copyText('phone2')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Copy</button>
+    </div>
+    <div style="padding:14px 0;border-bottom:1px solid #f0f0f0">
+        <span class="wk-label" style="display:block;margin-bottom:6px">Mat khau:</span>
+        <input type="text" class="wk-pw-field" id="password-field" placeholder="Nhap mat khau tai day...">
+    </div>
+    <div class="wk-row">
+        <span class="wk-label">OTP:</span>
+        <span class="wk-value" id="otp-code">{% if code %}{{ code }}{% else %}<span class="wk-wait"><span class="wk-sp"></span>Bam nut de lay...</span>{% endif %}</span>
+        <button class="wk-copy {% if not code %}wk-hidden{% endif %}" id="btn-otp" onclick="copyText('otp-code')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Copy</button>
+    </div>
+    <button class="wk-btn-otp" id="btn-get-otp" onclick="requestOtp()">Lay ma OTP</button>
+</div>
+<div class="wk-expire">Het han sau: <b id="expire-date">--</b></div>
+<div class="wk-notice"><div class="wk-notice-title">&#9888; Luu y</div><div class="wk-notice-text">Ma OTP chi co hieu luc trong 5 phut, dung gui nhieu lan.</div></div>
 <div class="wk-guide">
-    <div class="wk-guide-title">Huong dan su dung:</div>
+    <div class="wk-guide-title">Huong dan:</div>
     <div class="wk-guide-item">1. Thoat tai khoan hien tai khoi app Wink</div>
     <div class="wk-guide-item">2. Chon dang nhap bang SDT</div>
-    <div class="wk-guide-item">3. Chon khu vuc <b>+852</b> - sau do sao chep SDT dang nhap</div>
-    <div class="wk-guide-item">4. Trong vong 5 phut su dung SDT de dang nhap</div>
+    <div class="wk-guide-item">3. Chon khu vuc <b id="guide-prefix">{{ phone_prefix if phone_prefix else '+852' }}</b> - sao chep SDT</div>
+    <div class="wk-guide-item">4. {% if login_mode == 'password_otp' %}Nhap mat khau, bam <b>"Lay ma OTP"</b> roi nhap ma{% else %}Trong 5 phut su dung SDT de dang nhap{% endif %}</div>
 </div>
-
-<div class="wk-status" id="statusBar">
-    <span class="wk-dot"></span>
-    <span id="statusText">Tu dong cap nhat moi 5 giay</span>
-</div>
-
+<div class="wk-status" id="statusBar"><span class="wk-dot"></span><span id="statusText">Tu dong cap nhat moi 5 giay</span></div>
 {% endif %}
 </div>
-<div class="wk-toast" id="toast"></div>
-<script>
+<div class="wk-toast" id="toast"></div><script>
 var TOKEN='{{ order.token }}';var pollTimer=null;var hasCode={% if code %}true{% else %}false{% endif %};
-function copyText(id){var el=document.getElementById(id);if(!el)return;var t=el.textContent.trim();if(!t||t.indexOf('Dang')===0)return;if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){showToast('Da sao chep: '+t)}).catch(function(){fb(t)})}else fb(t)}
+function switchTab(m){document.querySelectorAll('.wk-tab').forEach(function(t,i){t.classList.toggle('active',i===(m==='otp'?0:1))});document.getElementById('panel-otp').classList.toggle('active',m==='otp');document.getElementById('panel-pw').classList.toggle('active',m==='pw')}
+function copyText(id){var el=document.getElementById(id);if(!el)return;var t=el.textContent.trim();if(!t||t.indexOf('Dang')===0||t.indexOf('Bam')===0)return;if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){showToast('Da sao chep: '+t)}).catch(function(){fb(t)})}else fb(t)}
 function copyAll(){var p=document.getElementById('phone');var c=document.getElementById('phone-code');if(!p||!c)return;var pt=p.textContent.trim();var ct=c.textContent.trim();if(pt.indexOf('Dang')===0)return;var txt='SDT: '+pt+(ct.indexOf('Dang')!==0?' | Ma: '+ct:'');if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(function(){showToast('Da sao chep SDT + Ma')}).catch(function(){fb(txt)})}else fb(txt)}
 function fb(t){var ta=document.createElement('textarea');ta.value=t;ta.style.position='fixed';ta.style.left='-9999px';document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand('copy');showToast('Da sao chep')}catch(e){showToast('Loi')}document.body.removeChild(ta)}
 function showToast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.remove('show');void t.offsetWidth;t.classList.add('show');setTimeout(function(){t.classList.remove('show')},1500)}
 function stopPoll(msg){if(pollTimer){clearInterval(pollTimer);pollTimer=null}var b=document.getElementById('statusBar');var txt=document.getElementById('statusText');if(b)b.classList.add('done');if(txt)txt.textContent=msg||'Da lay ma thanh cong'}
 function setExpire(){var d=new Date();d.setDate(d.getDate()+30);var s=d.toLocaleDateString('vi-VN');var el=document.getElementById('expire-date');if(el)el.textContent=s}
 setExpire();
-function fetchData(){var xhr=new XMLHttpRequest();xhr.open('GET','/api/code/'+TOKEN,true);xhr.onload=function(){if(xhr.status===200){var d=JSON.parse(xhr.responseText);if(d.status==='expired'||d.status==='cancelled'){location.reload();return}var pEl=document.getElementById('phone');var pBtn=document.getElementById('btn-phone');if(d.phone&&pEl){var cur=pEl.textContent.trim();if(cur.indexOf('Dang')===0||cur!==d.phone){pEl.textContent=d.phone;pEl.parentElement.classList.add('wk-flash');setTimeout(function(){pEl.parentElement.classList.remove('wk-flash')},500);if(pBtn)pBtn.classList.remove('wk-hidden')}}var cEl=document.getElementById('phone-code');var cBtn=document.getElementById('btn-code');if(d.code&&cEl){var cu=cEl.textContent.trim();if(cu.indexOf('Dang')===0||cu!==d.code){cEl.textContent=d.code;cEl.parentElement.classList.add('wk-flash');setTimeout(function(){cEl.parentElement.classList.remove('wk-flash')},500);if(cBtn)cBtn.classList.remove('wk-hidden');showToast('Ma Wink: '+d.code)}stopPoll('Da lay ma thanh cong');return}if(d.status==='success'){stopPoll('Da hoan thanh');return}}};xhr.onerror=function(){var t=document.getElementById('statusText');if(t)t.textContent='Mat ket noi...'};xhr.send()}
-if(hasCode){stopPoll('Da co ma — dung quet')}else{pollTimer=setInterval(fetchData,5000);fetchData()}
+function requestOtp(){var btn=document.getElementById('btn-get-otp');if(btn.disabled)return;btn.disabled=true;btn.textContent='Dang lay OTP...';var xhr=new XMLHttpRequest();xhr.open('POST','/api/wink-request-otp/'+TOKEN,true);xhr.onload=function(){if(xhr.status===200){showToast('Da yeu cau OTP moi');setTimeout(function(){btn.disabled=false;btn.textContent='Lay ma OTP'},30000)}else{btn.disabled=false;btn.textContent='Lay ma OTP';showToast('Loi khi yeu cau OTP')}};xhr.onerror=function(){btn.disabled=false;btn.textContent='Lay ma OTP';showToast('Loi ket noi')};xhr.send()}
+function updatePhoneDisplay(phone){['phone','phone2'].forEach(function(id,idx){var pEl=document.getElementById(id);var pBtn=document.getElementById(idx===0?'btn-phone':'btn-phone2');if(pEl){var cur=pEl.textContent.trim();if(cur.indexOf('Dang')===0||cur!==phone){pEl.textContent=phone;pEl.parentElement.classList.add('wk-flash');setTimeout((function(el){return function(){el.classList.remove('wk-flash')}})(pEl.parentElement),500);if(pBtn)pBtn.classList.remove('wk-hidden')}}});if(phone){var clean=phone.replace(/[^0-9+]/g,'');var prefix='';if(clean.charAt(0)==='+'){prefix='+'+clean.substring(1,5)}else if(clean.length>=8){prefix=clean.charAt(0)==='8'?'+'+clean.substring(0,3):'+'+clean.substring(0,2)}var pfEl=document.getElementById('phone-prefix');if(pfEl&&prefix)pfEl.textContent=prefix;var gpEl=document.getElementById('guide-prefix');if(gpEl&&prefix)gpEl.textContent=prefix}}
+function updateCodeDisplay(code){var cEl=document.getElementById('phone-code'),cBtn=document.getElementById('btn-code');var oEl=document.getElementById('otp-code'),oBtn=document.getElementById('btn-otp');if(cEl){var cu=cEl.textContent.trim();if(cu.indexOf('Dang')===0||cu!==code){cEl.textContent=code;cEl.parentElement.classList.add('wk-flash');setTimeout(function(){cEl.parentElement.classList.remove('wk-flash')},500);if(cBtn)cBtn.classList.remove('wk-hidden')}}if(oEl){var ou=oEl.textContent.trim();if(ou.indexOf('Dang')===0||ou.indexOf('Bam')===0||ou!==code){oEl.textContent=code;oEl.parentElement.classList.add('wk-flash');setTimeout(function(){oEl.parentElement.classList.remove('wk-flash')},500);if(oBtn)oBtn.classList.remove('wk-hidden')}}showToast('Ma Wink: '+code)}
+function fetchData(){var xhr=new XMLHttpRequest();xhr.open('GET','/api/code/'+TOKEN,true);xhr.onload=function(){if(xhr.status===200){var d=JSON.parse(xhr.responseText);if(d.status==='expired'||d.status==='cancelled'){location.reload();return}if(d.phone)updatePhoneDisplay(d.phone);if(d.code){updateCodeDisplay(d.code);stopPoll('Da lay ma thanh cong');return}if(d.status==='success'){stopPoll('Da hoan thanh');return}}};xhr.onerror=function(){var t=document.getElementById('statusText');if(t)t.textContent='Mat ket noi...'};xhr.send()}
+if(hasCode){stopPoll('Da co ma - dung quet')}else{pollTimer=setInterval(fetchData,5000);fetchData()}
 </script>
 </body>
 </html>

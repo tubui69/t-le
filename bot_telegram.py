@@ -21,7 +21,7 @@ def detect_type(url):
     return 'xingtu'
 def get_link(token, ot):
     if ot == 'duolingo': return f'{WEB}/dl/{token}'
-    if ot == 'wink': return f'{WEB}/wink/?token={token}'
+    if ot in ('wink','wink_account'): return f'{WEB}/wink/?token={token}'
     return f'{WEB}/xingtu/{token}'
 def extract_urls(text):
     pat = r"https?://[^\s<>\[\](){}\"'`,;]+"
@@ -80,8 +80,8 @@ async def handle_msg(update, ctx):
     for url in urls:
         oid, link, ot = create_order(url, name)
         if oid:
-            ic = '\U0001f989' if ot == 'duolingo' else ('\U0001f4f1' if ot == 'wink' else '\U0001f511')
-            lb = 'Duolingo' if ot == 'duolingo' else ('Wink' if ot == 'wink' else 'Xingtu')
+            ic = '\U0001f989' if ot == 'duolingo' else ('\U0001f4f1' if ot in ('wink','wink_account') else '\U0001f511')
+            lb = 'Duolingo' if ot == 'duolingo' else ('Wink SDT+Ma' if ot == 'wink' else ('Wink SDT+MK+Ma' if ot == 'wink_account' else 'Xingtu'))
             await update.message.reply_text(
                 f'{ic} *{lb}* #{oid}\n`{url}`\n\U0001f310 {link}', parse_mode='Markdown')
         else:

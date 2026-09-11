@@ -12,7 +12,7 @@ with app.app_context():
         cols = [c["name"] for c in inspect(db.engine).get_columns("orders")]
         for col, ddl in [("latest_phone","VARCHAR(30)"),("order_type","VARCHAR(20) DEFAULT \x27xingtu\x27"),
                           ("scraping_active","BOOLEAN DEFAULT 0"),("scraping_started_at","DATETIME"),("completed_at","DATETIME"),
-                          ("error_count","INTEGER DEFAULT 0")]:
+                          ("error_count","INTEGER DEFAULT 0"),("login_mode","VARCHAR(20) DEFAULT \x27otp\x27")]:
             if col not in cols:
                 db.session.execute(text("ALTER TABLE orders ADD COLUMN " + col + " " + ddl))
                 db.session.commit()
@@ -57,9 +57,29 @@ def admin_order_new():
             name = request.form.get("customer_name","").strip()
             if not name: flash("Nhap ten!"); return render_template("admin_order_form.html", order=None)
             ot = request.form.get("order_type","xingtu")
+            lm = request.form.get("login_mode","otp") if ot in ("wink","wink_account") else "otp"
             o = Order(customer_name=name, customer_phone=request.form.get("customer_phone","").strip() or None,
-                      note=request.form.get("note","").strip() or None, status="pending", order_type=ot, token=secrets.token_urlsafe(16))
-            db.session.add(o); db.session.commit()
+                      note=request.form.get("note","").strip() or None, status="pending", order_type=ot,
+                      token=secrets.token_urlsafe(16), login_mode=lm)
+            db.session.add(o); db.session.flush()
+            # Luu nhieu link dai ly cho Wink
+            if ot in ("wink", "wink_account"):
+                from models import WinkAgentLink
+                agent_urls_raw = request.form.get("agent_links","").strip()
+                if agent_urls_raw:
+                    for line in agent_urls_raw.split("\n"):
+                        line = line.strip()
+                        if line:
+                            parts = line.split("|", 1)
+                            url = parts[0].strip()
+                            agent_name = parts[1].strip() if len(parts) > 1 else None
+                            if url:
+                                db.session.add(WinkAgentLink(order_id=o.id, url=url, agent_name=agent_name))
+                    # Lay link dau tien lam source_url chinh
+                    first_link = agent_urls_raw.strip().split("\n")[0].strip().split("|")[0].strip()
+                    if first_link:
+                        o.source_url = first_link
+            db.session.commit()
             return redirect(url_for("admin_order_detail", oid=o.id))
         except Exception as e:
             import traceback; traceback.print_exc()
@@ -104,7 +124,7 @@ def admin_order_delete(oid):
 def customer_view(token):
     o = Order.query.filter_by(token=token).first_or_404()
     if o.order_type=="duolingo": return _dl(o)
-    if o.order_type=="wink": return _wk(o)
+    if o.order_type in ("wink","wink_account"): return _wk(o)
     return _xt(o)
 @app.route("/xingtu/<token>")
 def customer_xingtu(token): return _xt(Order.query.filter_by(token=token).first_or_404())
@@ -135,7 +155,18 @@ def _wk(o):
         if o.source_url and not o.latest_code:
             if not o.scraping_active: o.start_scraping(); db.session.commit()
             scraper.request_scrape(o.id)
-        return render_template("customer_wink.html", order=o, code=o.latest_code, phone=o.latest_phone)
+        # Tach dau so tu SDT
+        phone_prefix = None
+        if o.latest_phone:
+            p = o.latest_phone.strip().replace(" ","").replace("-","")
+            if p.startswith("+"):
+                phone_prefix = "+" + "".join(c for c in p[1:] if c.isdigit())[:4]
+            elif p.isdigit() and len(p) >= 8:
+                phone_prefix = "+" + p[:3] if p.startswith("8") else "+" + p[:2]
+        login_mode = o.login_mode or "otp"
+        agent_links = [{"url": l.url, "name": l.agent_name} for l in o.agent_links] if o.agent_links else []
+        return render_template("customer_wink.html", order=o, code=o.latest_code, phone=o.latest_phone,
+                               phone_prefix=phone_prefix, login_mode=login_mode, agent_links=agent_links)
     except Exception as e:
         import traceback; traceback.print_exc()
         return f"<h1>Error</h1><pre>{e}</pre>", 500
@@ -159,6 +190,18 @@ def api_resume(token):
     if o.order_type!="duolingo" or o.status!="paused": return jsonify({"error":"invalid"}), 400
     o.resume_scraping(); db.session.commit(); scraper.request_scrape(o.id)
     return jsonify({"status":"resumed"})
+@app.route("/api/wink-request-otp/<token>", methods=["POST"])
+def api_wink_request_otp(token):
+    o = Order.query.filter_by(token=token).first_or_404()
+    if o.order_type not in ("wink","wink_account"): return jsonify({"error":"invalid order type"}), 400
+    if o.status in ("cancelled","expired","success"): return jsonify({"error":"order "+o.status}), 400
+    # Xoa code cu de scraper quet lai OTP moi
+    o.latest_code = None; o.error_count = 0
+    if not o.scraping_active:
+        o.start_scraping()
+    db.session.commit()
+    scraper.request_scrape(o.id)
+    return jsonify({"status":"otp_requested"})
 @app.route("/api/code/<token>")
 def api_code(token):
     o = Order.query.filter_by(token=token).first_or_404()
@@ -171,7 +214,7 @@ def index():
     token = request.args.get("token")
     if token:
         o = Order.query.filter_by(token=token).first()
-        if o and o.order_type == "wink":
+        if o and o.order_type in ("wink","wink_account"):
             return _wk(o)
         if o:
             return _dl(o) if o.order_type == "duolingo" else _xt(o)
