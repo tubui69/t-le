@@ -1,0 +1,4 @@
+# Dam bao file shell script luon dung Unix line endings (LF)
+*.sh text eol=lf
+# File Python giu nguyen
+*.py text eol=lf
