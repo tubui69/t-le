@@ -99,21 +99,6 @@ body { background-color: #f5f5f5; font-family: -apple-system, BlinkMacSystemFont
         <span id="expire-date">--</span>
     </div>
 
-    {% if agent_links %}
-    <div class="agent-box" id="agent-box">
-        <h4>Link đại lý:</h4>
-        <div id="agent-list">
-            {% for l in agent_links %}
-            <div class="agent-item">
-                <span class="agent-name">{{ l.name or ('Đại lý ' ~ loop.index) }}</span>
-                <a class="agent-btn" href="{{ l.url }}" target="_blank" rel="noopener">Mở</a>
-                <button class="agent-btn ghost" onclick="copyRaw('{{ l.url }}')">Copy</button>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-    {% endif %}
-
     <div class="warning-box">
         {% if login_mode == 'password_otp' %}
         <p>Nên đăng nhập bằng tên người dùng và mật khẩu. Nếu cần mã xác minh, vui lòng bấm yêu cầu ở bên dưới.</p>
@@ -355,7 +340,6 @@ function fetchData() {
         if (d.status === 'expired' || d.status === 'cancelled') { location.reload(); return; }
         if (d.phone) updatePhoneDisplay(d.phone);
         if (d.password) updatePasswordDisplay(d.password);
-        if (d.agent_links) renderAgentLinks(d.agent_links);
         if (d.code) {
             updateCodeDisplay(d.code);
             stopPoll();
