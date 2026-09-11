@@ -38,7 +38,7 @@ ExecStart=/root/t-le/venv/bin/python bot_telegram.py
 Restart=always
 RestartSec=5
 Environment=TELEGRAM_BOT_TOKEN=8845577933:AAHBEsql9VNOy78rYNFCxx-iqRE84pJfJgM
-Environment=WEB_BASE_URL=http://74.81.39.45
+Environment=WEB_BASE_URL=http://180.93.61.127:5000
 Environment=DATABASE_URL=sqlite:///data.db
 
 [Install]
