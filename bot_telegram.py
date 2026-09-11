@@ -16,12 +16,15 @@ flask_app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(flask_app)
 with flask_app.app_context():
     db.create_all()
-    # Migration them cot login_mode neu chua co
+    # Migration them cot neu chua co
     try:
         from sqlalchemy import text, inspect
         cols = [c["name"] for c in inspect(db.engine).get_columns("orders")]
         if "login_mode" not in cols:
             db.session.execute(text("ALTER TABLE orders ADD COLUMN login_mode VARCHAR(20) DEFAULT 'otp'"))
+            db.session.commit()
+        if "account_password" not in cols:
+            db.session.execute(text("ALTER TABLE orders ADD COLUMN account_password VARCHAR(200)"))
             db.session.commit()
     except Exception as e:
         logger.info(f"Migration skip: {e}")
@@ -138,10 +141,10 @@ async def cmd_winkmk(update, ctx):
         'Dung /start de quay ve che do binh thuong.',
         parse_mode='Markdown')
 async def handle_msg(update, ctx):
-    urls = extract_urls(update.message.text)
+    text = update.message.text or update.message.caption or ""
+    urls = extract_urls(text)
     if not urls:
-        await update.message.reply_text(
-            '❌ Khong tim thay link!\nGui nhieu link cung luc duoc!', parse_mode='Markdown')
+        await update.message.reply_text('❌ Khong tim thay link!\nGui nhieu link cung luc duoc!', parse_mode='Markdown')
         return
     name = f'TG: {update.effective_user.first_name or update.effective_user.username}'
     uid = update.effective_user.id
