@@ -1,29 +1,31 @@
 import logging, re, os, sys, secrets
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 logging.basicConfig(format='%(asctime)s-%(name)s-%(levelname)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
 TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN', '8845577933:AAHBEsql9VNOy78rYNFCxx-iqRE84pJfJgM')
 WEB = os.environ.get('WEB_BASE_URL', 'http://180.93.61.127:5000')
-DB = os.environ.get('DATABASE_URL', 'sqlite:///data.db')
-engine = create_engine(DB); Session = sessionmaker(bind=engine)
-sys.path.insert(0, os.path.dirname(__file__))
-# Tao bang tu dong khi bot chay
-from models import db as _flask_db
-try:
-    from flask import Flask
-    _app = Flask(__name__)
-    _app.config['SQLALCHEMY_DATABASE_URI'] = DB
-    _app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    _flask_db.init_app(_app)
-    with _app.app_context():
-        _flask_db.create_all()
-    logger.info("DB tables ready")
-except Exception as e:
-    logger.error(f"DB init error: {e}")
-from models import Order, WinkAgentLink
+DB_PATH = os.environ.get('DATABASE_URL', 'sqlite:///data.db')
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+# Khoi tao Flask app de dung Flask-SQLalchemy
+from flask import Flask
+from models import db, Order, WinkAgentLink
+flask_app = Flask(__name__)
+flask_app.config['SQLALCHEMY_DATABASE_URI'] = DB_PATH
+flask_app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db.init_app(flask_app)
+with flask_app.app_context():
+    db.create_all()
+    # Migration them cot login_mode neu chua co
+    try:
+        from sqlalchemy import text, inspect
+        cols = [c["name"] for c in inspect(db.engine).get_columns("orders")]
+        if "login_mode" not in cols:
+            db.session.execute(text("ALTER TABLE orders ADD COLUMN login_mode VARCHAR(20) DEFAULT 'otp'"))
+            db.session.commit()
+    except Exception as e:
+        logger.info(f"Migration skip: {e}")
+logger.info("DB tables ready")
 DL_DOMAINS = ['dlg.llii.me']
 WINK_DOMAINS = ['wmrjkf.com']
 def detect_type(url):
@@ -45,30 +47,28 @@ def extract_urls(text):
         if u not in seen: seen.add(u); result.append(u)
     return result
 def create_order(url, name='TG User', login_mode='otp', extra_urls=None):
-    s = Session()
-    try:
-        ot = detect_type(url)
-        # Neu la wink va co login_mode=password_otp => order_type=wink_account
-        if ot == 'wink' and login_mode == 'password_otp':
-            ot = 'wink_account'
-        o = Order(customer_name=name, source_url=url, status='pending',
-                  token=secrets.token_urlsafe(16), order_type=ot, error_count=0,
-                  scraping_active=False, login_mode=login_mode)
-        o.set_expiry(3); s.add(o); s.flush()
-        # Luu nhieu link dai ly cho Wink
-        if ot in ('wink', 'wink_account') and extra_urls:
-            all_urls = [url] + extra_urls
-            for u in all_urls:
-                parts = u.split('|', 1)
-                link = parts[0].strip()
-                agent_name = parts[1].strip() if len(parts) > 1 else None
-                if link:
-                    s.add(WinkAgentLink(order_id=o.id, url=link, agent_name=agent_name))
-        s.commit(); s.refresh(o)
-        return o.id, get_link(o.token, ot), ot
-    except Exception as e:
-        s.rollback(); logger.error(f'Error: {e}'); return None, None, None
-    finally: s.close()
+    with flask_app.app_context():
+        try:
+            ot = detect_type(url)
+            if ot == 'wink' and login_mode == 'password_otp':
+                ot = 'wink_account'
+            o = Order(customer_name=name, source_url=url, status='pending',
+                      token=secrets.token_urlsafe(16), order_type=ot, error_count=0,
+                      scraping_active=False, login_mode=login_mode)
+            o.set_expiry(3); db.session.add(o); db.session.flush()
+            if ot in ('wink', 'wink_account') and extra_urls:
+                all_urls = [url] + extra_urls
+                for u in all_urls:
+                    parts = u.split('|', 1)
+                    link = parts[0].strip()
+                    agent_name = parts[1].strip() if len(parts) > 1 else None
+                    if link:
+                        db.session.add(WinkAgentLink(order_id=o.id, url=link, agent_name=agent_name))
+            db.session.commit()
+            oid = o.id; otoken = o.token
+            return oid, get_link(otoken, ot), ot
+        except Exception as e:
+            db.session.rollback(); logger.error(f'Error: {e}'); return None, None, None
 async def cmd_start(update, ctx):
     t = ('\U0001f510 *Bot Lay Ma Tu Dong* \U0001f510\n\n'
          'Gui link -> Bot tao don va tra ve link lay ma.\n\n'
@@ -88,15 +88,16 @@ async def cmd_help(update, ctx):
          f'Admin: {WEB}/admin')
     await update.message.reply_text(t, parse_mode='Markdown')
 async def cmd_stats(update, ctx):
-    s = Session()
-    try:
-        t = s.query(Order).count()
-        sc = s.query(Order).filter_by(status='scraping').count()
-        ok = s.query(Order).filter_by(status='success').count()
-        wk = s.query(Order).filter(Order.order_type.in_(['wink','wink_account'])).count()
-        await update.message.reply_text(f'\U0001f4ca Tong: *{t}* | Quet: {sc} | Xong: {ok} | Wink: {wk}', parse_mode='Markdown')
-    except: await update.message.reply_text('Loi!')
-    finally: s.close()
+    with flask_app.app_context():
+        try:
+            t = Order.query.count()
+            sc = Order.query.filter_by(status='scraping').count()
+            ok = Order.query.filter_by(status='success').count()
+            wk = Order.query.filter(Order.order_type.in_(['wink','wink_account'])).count()
+            await update.message.reply_text(f'\U0001f4ca Tong: *{t}* | Quet: {sc} | Xong: {ok} | Wink: {wk}', parse_mode='Markdown')
+        except Exception as e:
+            logger.error(f'Stats error: {e}')
+            await update.message.reply_text('Loi!')
 
 # Che do winkmk: SDT + Mat khau + OTP
 _winkmk_users = set()
