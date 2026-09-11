@@ -10,7 +10,20 @@ WEB = os.environ.get('WEB_BASE_URL', 'http://74.81.39.45')
 DB = os.environ.get('DATABASE_URL', 'sqlite:///data.db')
 engine = create_engine(DB); Session = sessionmaker(bind=engine)
 sys.path.insert(0, os.path.dirname(__file__))
-from models import Order, db
+# Tao bang tu dong khi bot chay
+from models import db as _flask_db
+try:
+    from flask import Flask
+    _app = Flask(__name__)
+    _app.config['SQLALCHEMY_DATABASE_URI'] = DB
+    _app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    _flask_db.init_app(_app)
+    with _app.app_context():
+        _flask_db.create_all()
+    logger.info("DB tables ready")
+except Exception as e:
+    logger.error(f"DB init error: {e}")
+from models import Order, WinkAgentLink
 DL_DOMAINS = ['dlg.llii.me']
 WINK_DOMAINS = ['wmrjkf.com']
 def detect_type(url):
@@ -44,7 +57,6 @@ def create_order(url, name='TG User', login_mode='otp', extra_urls=None):
         o.set_expiry(3); s.add(o); s.flush()
         # Luu nhieu link dai ly cho Wink
         if ot in ('wink', 'wink_account') and extra_urls:
-            from models import WinkAgentLink
             all_urls = [url] + extra_urls
             for u in all_urls:
                 parts = u.split('|', 1)
