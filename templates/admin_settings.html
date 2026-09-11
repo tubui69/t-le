@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Cai dat{% endblock %}
+{% block body %}
+<div class="container">
+    <header class="admin-header">
+        <h1>Cai dat</h1>
+        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline">Quay lai</a>
+    </header>
+    <form method="POST" class="form-card">
+        <div class="form-group">
+            <label for="wink_agent_url">Link dai ly Wink</label>
+            <input type="text" id="wink_agent_url" name="wink_agent_url" value="{{ settings.get('wink_agent_url','') }}" placeholder="https://a.wmrjkf.com/url/...">
+            <small style="color:#999;font-size:11px;display:block;margin-top:4px">Trang dai ly Wink, dung de cai san khi tao don</small>
+        </div>
+        <div class="form-group">
+            <label for="wink_mode">Che do mac dinh Wink</label>
+            <select id="wink_mode" name="wink_mode">
+                <option value="otp" {% if settings.get('wink_mode','otp') == 'otp' %}selected{% endif %}>SDT + Ma OTP</option>
+                <option value="password_otp" {% if settings.get('wink_mode') == 'password_otp' %}selected{% endif %}>SDT + MK + OTP</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="meitu_agent_url">Link dai ly Meitu</label>
+            <input type="text" id="meitu_agent_url" name="meitu_agent_url" value="{{ settings.get('meitu_agent_url','') }}" placeholder="https://meitu-agent.com/url/...">
+            <small style="color:#999;font-size:11px;display:block;margin-top:4px">Trang dai ly Meitu</small>
+        </div>
+        <div class="form-group">
+            <label for="meitu_mode">Che do mac dinh Meitu</label>
+            <select id="meitu_mode" name="meitu_mode">
+                <option value="otp" {% if settings.get('meitu_mode','otp') == 'otp' %}selected{% endif %}>SDT + Ma OTP</option>
+                <option value="password_otp" {% if settings.get('meitu_mode') == 'password_otp' %}selected{% endif %}>SDT + MK + OTP</option>
+            </select>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Luu cai dat</button>
+        </div>
+    </form>
+</div>
+<style>
+select{width:100%;padding:10px 14px;border:1px solid #ddd;border-radius:8px;font-size:14px;background:white}
+</style>
+{% endblock %}

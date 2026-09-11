@@ -6,6 +6,7 @@
         <h1>Quan ly don hang</h1>
         <div class="header-actions">
             <a href="{{ url_for('admin_order_new') }}" class="btn btn-primary">+ Tao don moi</a>
+            <a href="{{ url_for('admin_settings') }}" class="btn btn-outline">Cai dat</a>
             <a href="{{ url_for('admin_logout') }}" class="btn btn-outline">Dang xuat</a>
         </div>
     </header>
@@ -52,6 +53,10 @@
            class="filter-btn {% if current_type == 'xingtu' %}active{% endif %}">Xingtu</a>
         <a href="{{ url_for('admin_dashboard', status=current_filter, type='duolingo') }}"
            class="filter-btn {% if current_type == 'duolingo' %}active{% endif %}">Duolingo</a>
+        <a href="{{ url_for('admin_dashboard', status=current_filter, type='wink') }}"
+           class="filter-btn {% if current_type == 'wink' %}active{% endif %}">Wink</a>
+        <a href="{{ url_for('admin_dashboard', status=current_filter, type='meitu') }}"
+           class="filter-btn {% if current_type == 'meitu' %}active{% endif %}">Meitu</a>
     </div>
 
     <div class="filter-row">
@@ -136,5 +141,9 @@
 }
 .type-xingtu { background: #fff3cd; color: #856404; }
 .type-duolingo { background: #d4edda; color: #155724; }
+.type-wink { background: #ffe0cc; color: #a44a00; }
+.type-wink_account { background: #ffe0cc; color: #a44a00; }
+.type-meitu { background: #e0d4fd; color: #4a148c; }
+.type-meitu_account { background: #e0d4fd; color: #4a148c; }
 </style>
 {% endblock %}

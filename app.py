@@ -2,7 +2,7 @@ import secrets, atexit, subprocess, hmac, hashlib
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 from functools import wraps
 from config import Config
-from models import db, Order, CodeHistory
+from models import db, Order, CodeHistory, Setting
 from scraper import CodeScraper
 app = Flask(__name__); app.config.from_object(Config); db.init_app(app)
 with app.app_context():
@@ -47,7 +47,8 @@ def admin_dashboard():
              "scraping":Order.query.filter_by(status="scraping").count(),"success":Order.query.filter_by(status="success").count(),
              "expired":Order.query.filter_by(status="expired").count(),
              "xingtu":Order.query.filter_by(order_type="xingtu").count(),"duolingo":Order.query.filter_by(order_type="duolingo").count(),
-             "wink":Order.query.filter_by(order_type="wink").count()}
+             "wink":Order.query.filter(Order.order_type.in_(["wink","wink_account"])).count(),
+             "meitu":Order.query.filter(Order.order_type.in_(["meitu","meitu_account"])).count()}
     return render_template("admin_dashboard.html", orders=orders, stats=stats, current_filter=sf, current_type=tf)
 @app.route("/admin/order/new", methods=["GET","POST"])
 @admin_required
@@ -57,13 +58,13 @@ def admin_order_new():
             name = request.form.get("customer_name","").strip()
             if not name: flash("Nhap ten!"); return render_template("admin_order_form.html", order=None)
             ot = request.form.get("order_type","xingtu")
-            lm = request.form.get("login_mode","otp") if ot in ("wink","wink_account") else "otp"
+            lm = request.form.get("login_mode","otp") if ot in ("wink","wink_account","meitu","meitu_account") else "otp"
             o = Order(customer_name=name, customer_phone=request.form.get("customer_phone","").strip() or None,
                       note=request.form.get("note","").strip() or None, status="pending", order_type=ot,
                       token=secrets.token_urlsafe(16), login_mode=lm)
             db.session.add(o); db.session.flush()
-            # Luu nhieu link dai ly cho Wink
-            if ot in ("wink", "wink_account"):
+            # Luu nhieu link dai ly cho Wink/Meitu
+            if ot in ("wink", "wink_account", "meitu", "meitu_account"):
                 from models import WinkAgentLink
                 agent_urls_raw = request.form.get("agent_links","").strip()
                 if agent_urls_raw:
@@ -216,7 +217,7 @@ def api_resume(token):
 @app.route("/api/wink-request-otp/<token>", methods=["POST"])
 def api_wink_request_otp(token):
     o = Order.query.filter_by(token=token).first_or_404()
-    if o.order_type not in ("wink","wink_account"): return jsonify({"error":"invalid order type"}), 400
+    if o.order_type not in ("wink","wink_account","meitu","meitu_account"): return jsonify({"error":"invalid order type"}), 400
     if o.status in ("cancelled","expired","success"): return jsonify({"error":"order "+o.status}), 400
     # Xoa code cu de scraper quet lai OTP moi
     o.latest_code = None; o.error_count = 0
@@ -232,15 +233,33 @@ def api_code(token):
         "order_type":o.order_type or "xingtu","scraping_active":o.scraping_active,
         "updated_at":o.codes[0].scraped_at.isoformat() if o.codes else None,
         "expired":o.is_expired,"completed":o.status=="success"})
+@app.route("/token/<token>")
+def token_page(token):
+    o = Order.query.filter_by(token=token).first_or_404()
+    if o.order_type in ("wink","wink_account","meitu","meitu_account"):
+        return _wk(o)
+    if o.order_type == "duolingo":
+        return _dl(o)
+    return _xt(o)
+@app.route("/admin/settings", methods=["GET","POST"])
+@admin_required
+def admin_settings():
+    if request.method == "POST":
+        for key in ["wink_agent_url", "meitu_agent_url", "wink_mode", "meitu_mode"]:
+            val = request.form.get(key, "").strip()
+            s = Setting.query.get(key)
+            if s: s.value = val
+            else: db.session.add(Setting(key=key, value=val))
+        db.session.commit()
+        flash("Da luu cai dat!", "success")
+        return redirect(url_for("admin_settings"))
+    settings = {s.key: s.value for s in Setting.query.all()}
+    return render_template("admin_settings.html", settings=settings)
 @app.route("/")
 def index():
     token = request.args.get("token")
     if token:
-        o = Order.query.filter_by(token=token).first()
-        if o and o.order_type in ("wink","wink_account"):
-            return _wk(o)
-        if o:
-            return _dl(o) if o.order_type == "duolingo" else _xt(o)
+        return redirect(url_for("token_page", token=token))
     return redirect(url_for("admin_login"))
 
 WEBHOOK_SECRET = app.config.get("WEBHOOK_SECRET", "my-webhook-secret-123")

@@ -112,7 +112,7 @@ class CodeScraper:
     def _scrape_order(self, order):
         from models import CodeHistory, db, now_vn
         is_dlg = (order.order_type == "duolingo")
-        is_wink = order.order_type in ("wink", "wink_account")
+        is_wink = order.order_type in ("wink", "wink_account", "meitu", "meitu_account")
         with self._lock:
             page = self._browser.new_page()
             page.set_default_timeout(10000)

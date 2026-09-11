@@ -48,7 +48,8 @@ class Order(db.Model):
 
     @property
     def type_display(self):
-        return {"xingtu":"Xingtu","duolingo":"Duolingo","wink":"Wink SDT+Ma","wink_account":"Wink SDT+MK+Ma"}.get(self.order_type, self.order_type)
+        return {"xingtu":"Xingtu","duolingo":"Duolingo","wink":"Wink SDT+Ma","wink_account":"Wink SDT+MK+Ma",
+                "meitu":"Meitu SDT+Ma","meitu_account":"Meitu SDT+MK+Ma"}.get(self.order_type, self.order_type)
 
     def generate_token(self):
         self.token = secrets.token_urlsafe(16)
@@ -71,6 +72,11 @@ class WinkAgentLink(db.Model):
     url = db.Column(db.Text, nullable=False)
     agent_name = db.Column(db.String(100), nullable=True)
     created_at = db.Column(db.DateTime, default=now_vn)
+
+class Setting(db.Model):
+    __tablename__ = "settings"
+    key = db.Column(db.String(100), primary_key=True)
+    value = db.Column(db.Text, nullable=True)
 
 class CodeHistory(db.Model):
     __tablename__ = "code_history"

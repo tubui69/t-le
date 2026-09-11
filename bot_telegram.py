@@ -28,15 +28,18 @@ with flask_app.app_context():
 logger.info("DB tables ready")
 DL_DOMAINS = ['dlg.llii.me']
 WINK_DOMAINS = ['wmrjkf.com']
+MEITU_DOMAINS = []  # se cai trong admin settings, tam de rong
 def detect_type(url):
     for d in DL_DOMAINS:
         if d in url.lower(): return 'duolingo'
     for d in WINK_DOMAINS:
         if d in url.lower(): return 'wink'
+    for d in MEITU_DOMAINS:
+        if d in url.lower(): return 'meitu'
     return 'xingtu'
 def get_link(token, ot):
     if ot == 'duolingo': return f'{WEB}/dl/{token}'
-    if ot in ('wink','wink_account'): return f'{WEB}/wink/?token={token}'
+    if ot in ('wink','wink_account','meitu','meitu_account'): return f'{WEB}/token/{token}'
     return f'{WEB}/xingtu/{token}'
 def extract_urls(text):
     pat = r"https?://[^\s<>\[\](){}\"'`,;]+"
@@ -52,11 +55,13 @@ def create_order(url, name='TG User', login_mode='otp', extra_urls=None):
             ot = detect_type(url)
             if ot == 'wink' and login_mode == 'password_otp':
                 ot = 'wink_account'
+            if ot == 'meitu' and login_mode == 'password_otp':
+                ot = 'meitu_account'
             o = Order(customer_name=name, source_url=url, status='pending',
                       token=secrets.token_urlsafe(16), order_type=ot, error_count=0,
                       scraping_active=False, login_mode=login_mode)
             o.set_expiry(3); db.session.add(o); db.session.flush()
-            if ot in ('wink', 'wink_account') and extra_urls:
+            if ot in ('wink', 'wink_account', 'meitu', 'meitu_account') and extra_urls:
                 all_urls = [url] + extra_urls
                 for u in all_urls:
                     parts = u.split('|', 1)
