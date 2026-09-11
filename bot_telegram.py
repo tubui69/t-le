@@ -26,7 +26,6 @@ with flask_app.app_context():
     except Exception as e:
         logger.info(f"Migration skip: {e}")
 logger.info("DB tables ready")
-DL_DOMAINS = ['dlg.llii.me']
 WINK_DOMAINS = ['wmrjkf.com']
 def get_setting(key, default=''):
     """Doc cai dat tu DB (admin settings) de khong phai sua code khi doi domain."""
@@ -42,9 +41,6 @@ def meitu_domains():
 def wink_domains():
     extra = [d.strip().lower() for d in get_setting('wink_domains').split(',') if d.strip()]
     return [d.lower() for d in WINK_DOMAINS] + extra
-def duolingo_domains():
-    extra = [d.strip().lower() for d in get_setting('duolingo_domains').split(',') if d.strip()]
-    return [d.lower() for d in DL_DOMAINS] + extra
 def detect_type(url):
     u = url.lower()
     # Meitu check truoc de domain cu the thang domain chung
@@ -98,8 +94,6 @@ def create_order(url, name='TG User', login_mode='otp', extra_urls=None):
 async def cmd_start(update, ctx):
     t = ('\U0001f510 *Bot Lay Ma Tu Dong* \U0001f510\n\n'
          'Gui link goc -> Bot tao don va tra ve link lay ma.\n\n'
-         '\U0001f989 Duolingo: `https://dlg.llii.me/idxx?k=ABC`\n'
-         '\U0001f511 Xingtu: `http://47.103.212.73/wap?key=ABC`\n'
          '\U0001f4f1 Wink SDT+OTP: gui link trang goc co chu \u624b\u673a\u53f7/\u9a8c\u8bc1\u7801\n'
          '\U0001f3a8 Meitu SDT+OTP: domain cai trong Admin Settings\n'
          '\U0001f512 SDT+MK+OTP: dung lenh /winkmk\n\n'
@@ -153,7 +147,6 @@ async def handle_msg(update, ctx):
     uid = update.effective_user.id
     is_winkmk = uid in _winkmk_users
     # Tao order cho tung link, luu ket qua theo loai
-    results = {'xingtu': [], 'duolingo': [], 'wink': [], 'wink_account': []}
     results = {'wink': [], 'wink_account': [], 'meitu': [], 'meitu_account': []}
     wink_urls = [u for u in urls if detect_type(u) == 'wink']
     other_urls = [u for u in urls if detect_type(u) != 'wink']
@@ -183,14 +176,11 @@ async def handle_msg(update, ctx):
     # Gom tin nhan theo loai
     blocks = []
     type_labels = {
-        'xingtu': '\U0001f511 Xingtu:',
-        'duolingo': '\U0001f989 Duolingo:',
         'wink': '\U0001f4f1 Wink SDT+Ma:',
         'wink_account': '\U0001f512 Wink SDT+MK+OTP:',
         'meitu': '\U0001f3a8 Meitu SDT+Ma:',
         'meitu_account': '\U0001f512 Meitu SDT+MK+OTP:'
     }
-    for ot_key in ['xingtu', 'duolingo', 'wink', 'wink_account', 'meitu', 'meitu_account']:
     for ot_key in ['wink', 'wink_account', 'meitu', 'meitu_account']:
         items = results[ot_key]
         if not items:
