@@ -154,6 +154,7 @@ async def handle_msg(update, ctx):
     is_winkmk = uid in _winkmk_users
     # Tao order cho tung link, luu ket qua theo loai
     results = {'xingtu': [], 'duolingo': [], 'wink': [], 'wink_account': []}
+    results = {'wink': [], 'wink_account': [], 'meitu': [], 'meitu_account': []}
     wink_urls = [u for u in urls if detect_type(u) == 'wink']
     other_urls = [u for u in urls if detect_type(u) != 'wink']
     # Che do winkmk: gop tat ca link wink thanh 1 order
@@ -163,18 +164,21 @@ async def handle_msg(update, ctx):
         oid, link, ot = create_order(first_url, name, login_mode='password_otp', extra_urls=extra)
         if oid:
             n = len(wink_urls)
+            if ot not in results: results[ot] = []
             results[ot].append({'oid': oid, 'link': link, 'n': n})
             _winkmk_users.discard(uid)
         # Link khac (khong cung loai dai ly) tao binh thuong
         for url in other_urls:
             oid2, link2, ot2 = create_order(url, name)
             if oid2:
+                if ot2 not in results: results[ot2] = []
                 results[ot2].append({'oid': oid2, 'link': link2})
     else:
         # Binh thuong: moi link tao 1 order rieng
         for url in urls:
             oid, link, ot = create_order(url, name)
             if oid:
+                if ot not in results: results[ot] = []
                 results[ot].append({'oid': oid, 'link': link})
     # Gom tin nhan theo loai
     blocks = []
@@ -187,6 +191,7 @@ async def handle_msg(update, ctx):
         'meitu_account': '\U0001f512 Meitu SDT+MK+OTP:'
     }
     for ot_key in ['xingtu', 'duolingo', 'wink', 'wink_account', 'meitu', 'meitu_account']:
+    for ot_key in ['wink', 'wink_account', 'meitu', 'meitu_account']:
         items = results[ot_key]
         if not items:
             continue
