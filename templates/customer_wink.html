@@ -112,7 +112,7 @@ body{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);font-family:-app
     <div class="wk-guide-item">3. Chon khu vuc <b id="guide-prefix">{{ phone_prefix if phone_prefix else '...' }}</b> - sao chep SDT</div>
     <div class="wk-guide-item">4. {% if login_mode == 'password_otp' %}Nhap mat khau, bam <b>"Lay ma OTP"</b> roi nhap ma{% else %}Trong 5 phut su dung SDT de dang nhap{% endif %}</div>
 </div>
-<div class="wk-status" id="statusBar"><span class="wk-dot"></span><span id="statusText">Tu dong cap nhat moi 5 giay</span></div>
+<div class="wk-status" id="statusBar"><span class="wk-dot"></span><span id="statusText">Tu dong cap nhat moi 2 giay</span></div>
 {% endif %}
 </div>
 <div class="wk-toast" id="toast"></div><script>
@@ -130,7 +130,7 @@ function getCountry(phone){var digits=phone.replace(/\D/g,'');var len=digits.len
 function updatePhoneDisplay(phone){['phone','phone2'].forEach(function(id,idx){var pEl=document.getElementById(id);var pBtn=document.getElementById(idx===0?'btn-phone':'btn-phone2');if(pEl){var cur=pEl.textContent.trim();if(cur.indexOf('Dang')===0||cur!==phone){pEl.textContent=phone;pEl.parentElement.classList.add('wk-flash');setTimeout((function(el){return function(){el.classList.remove('wk-flash')}})(pEl.parentElement),500);if(pBtn)pBtn.classList.remove('wk-hidden')}}});if(phone){var c=getCountry(phone);var pfEl=document.getElementById('phone-prefix');var gpEl=document.getElementById('guide-prefix');if(c.code){var txt='+'+c.code;if(pfEl)pfEl.innerHTML=txt+' <small style="font-size:11px;color:#666;font-weight:400">('+c.name+')</small>';if(gpEl)gpEl.textContent='+'+c.code}else{if(pfEl)pfEl.innerHTML='<span style="color:#999;font-size:13px;font-weight:400">Khong xac dinh</span>';if(gpEl)gpEl.textContent='...'}}}
 function updateCodeDisplay(code){var cEl=document.getElementById('phone-code'),cBtn=document.getElementById('btn-code');var oEl=document.getElementById('otp-code'),oBtn=document.getElementById('btn-otp');if(cEl){var cu=cEl.textContent.trim();if(cu.indexOf('Dang')===0||cu!==code){cEl.textContent=code;cEl.parentElement.classList.add('wk-flash');setTimeout(function(){cEl.parentElement.classList.remove('wk-flash')},500);if(cBtn)cBtn.classList.remove('wk-hidden')}}if(oEl){var ou=oEl.textContent.trim();if(ou.indexOf('Dang')===0||ou.indexOf('Bam')===0||ou!==code){oEl.textContent=code;oEl.parentElement.classList.add('wk-flash');setTimeout(function(){oEl.parentElement.classList.remove('wk-flash')},500);if(oBtn)oBtn.classList.remove('wk-hidden')}}showToast('Ma Wink: '+code)}
 function fetchData(){var xhr=new XMLHttpRequest();xhr.open('GET','/api/code/'+TOKEN,true);xhr.onload=function(){if(xhr.status===200){var d=JSON.parse(xhr.responseText);if(d.status==='expired'||d.status==='cancelled'){location.reload();return}if(d.phone)updatePhoneDisplay(d.phone);if(d.code){updateCodeDisplay(d.code);stopPoll('Da lay ma thanh cong');return}if(d.status==='success'){stopPoll('Da hoan thanh');return}}};xhr.onerror=function(){var t=document.getElementById('statusText');if(t)t.textContent='Mat ket noi...'};xhr.send()}
-if(hasCode){stopPoll('Da co ma - dung quet')}else{pollTimer=setInterval(fetchData,5000);fetchData()}
+if(hasCode){stopPoll('Da co ma - dung quet')}else{pollTimer=setInterval(fetchData,2000);fetchData()}
 </script>
 </body>
 </html>

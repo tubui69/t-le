@@ -58,10 +58,10 @@ class CodeScraper:
                 self._process_priority_queue()
                 has = self._scrape_all()
                 self._check_expiry()
-                interval = self.app.config.get("SCRAPE_INTERVAL", 5) if has else 10
+                interval = self.app.config.get("SCRAPE_INTERVAL", 3) if has else 5
             except Exception as e:
                 logger.error(f"Loop error: {e}")
-                interval = 5
+                interval = 3
             time.sleep(interval)
 
     def _check_auto_pause(self):
@@ -112,51 +112,59 @@ class CodeScraper:
     def _scrape_order(self, order):
         from models import CodeHistory, db, now_vn
         is_dlg = (order.order_type == "duolingo")
-        is_wink = (order.order_type == "wink")
+        is_wink = order.order_type in ("wink", "wink_account")
         with self._lock:
             page = self._browser.new_page()
+            page.set_default_timeout(10000)
+            # Chan tai anh/media/font de tai trang nhanh hon
+            try:
+                page.route("**/*", lambda route: route.abort() if route.request.resource_type in ("image", "media", "font") else route.continue_())
+            except Exception: pass
             phone = None; code = None
             try:
                 page.on("dialog", lambda d: d.accept())
-                page.goto(order.source_url, wait_until="domcontentloaded", timeout=15000)
+                page.goto(order.source_url, wait_until="domcontentloaded", timeout=10000)
                 if is_wink:
-                    time.sleep(5)
+                    # Cho SDT xuat hien (event-driven, toi da 8s)
                     try:
+                        page.wait_for_selector("#phone", state="attached", timeout=8000)
                         el = page.query_selector("#phone")
                         if el: phone = el.inner_text().strip()
-                    except: pass
-                    for _ in range(30):
-                        time.sleep(2)
-                        try:
-                            el = page.query_selector("#phone-code")
-                            if el:
-                                code = el.inner_text().strip()
-                                if code and len(code) >= 4 and code.isdigit(): break
-                        except: pass
+                    except Exception: pass
+                    # Cho ma OTP hop le xuat hien - lay NGAY khi co (toi da 30s)
+                    try:
+                        page.wait_for_function(
+                            "() => { const el = document.querySelector('#phone-code');"
+                            " if (!el) return false;"
+                            " const t = (el.innerText || '').trim();"
+                            " return t.length >= 4 && /^[0-9]+$/.test(t); }",
+                            timeout=30000)
+                        el = page.query_selector("#phone-code")
+                        if el: code = el.inner_text().strip()
+                    except Exception: pass
                 elif not is_dlg:
-                    time.sleep(2)
                     try:
+                        page.wait_for_selector("#phone", state="attached", timeout=5000)
                         el = page.query_selector("#phone")
                         if el: phone = el.inner_text().strip()
-                    except: pass
-                    for _ in range(8):
-                        time.sleep(1)
-                        try:
-                            el = page.query_selector("#msgcode")
-                            if el:
-                                code = el.inner_text().strip()
-                                if code: break
-                        except: pass
+                    except Exception: pass
+                    try:
+                        page.wait_for_function(
+                            "() => { const el = document.querySelector('#msgcode');"
+                            " return !!el && (el.innerText || '').trim().length > 0; }",
+                            timeout=12000)
+                        el = page.query_selector("#msgcode")
+                        if el: code = el.inner_text().strip()
+                    except Exception: pass
                 else:
-                    time.sleep(2)
-                    for _ in range(10):
-                        time.sleep(1)
-                        try:
-                            el = page.query_selector("#msgcode")
-                            if el:
-                                code = el.inner_text().strip()
-                                if code: break
-                        except: pass
+                    try:
+                        page.wait_for_function(
+                            "() => { const el = document.querySelector('#msgcode');"
+                            " return !!el && (el.innerText || '').trim().length > 0; }",
+                            timeout=12000)
+                        el = page.query_selector("#msgcode")
+                        if el: code = el.inner_text().strip()
+                    except Exception: pass
             except Exception as e:
                 logger.error(f"Order {order.id} load error: {e}")
             finally:
