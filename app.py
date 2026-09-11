@@ -147,22 +147,31 @@ def _xt(o):
         if not o.scraping_active: o.start_scraping(); db.session.commit()
         scraper.request_scrape(o.id)
     return render_template("customer_xingtu.html", order=o, code=o.latest_code, phone=o.latest_phone)
-def detect_prefix(phone):
-    """Tach dau so quoc te tu SDT: +1 (My), +86 (TQ), +852 (HK), +84 (VN)"""
-    if not phone: return None
-    p = phone.strip().replace(" ","").replace("-","").replace("(","").replace(")","")
-    if p.startswith("+"): p = p[1:]
-    p = "".join(c for c in p if c.isdigit())
-    if not p: return None
-    if p.startswith("852") and len(p) >= 11: return "+852"
-    if p.startswith("86") and len(p) >= 12: return "+86"
-    if p.startswith("84") and len(p) >= 11: return "+84"
-    if p.startswith("1") and len(p) >= 11: return "+1"
-    if len(p) == 10: return "+1"
-    if p.startswith("86"): return "+86"
-    if p.startswith("84"): return "+84"
-    if p.startswith("1"): return "+1"
-    return "+" + p[:2]
+def detect_country(phone):
+    """Nhan dien quoc gia tu SDT chi hien so chinh (khong co +).
+    Quy tac:
+    1. 13 so bat dau 861 -> +86 China (cat bo 86)
+    2. 11 so bat dau 852 -> +852 Hongkong (cat bo 852)
+    3. 8 so dau 4-9 -> +852 Hongkong noi dia
+    4. 11 so bat dau 1 -> +86 China
+    5. 10 so dau 2-9 -> +1 Canada/US
+    6. Khong khop -> None"""
+    empty = {"code": None, "name": "Khong xac dinh", "clean_phone": None}
+    if not phone: return empty
+    digits = "".join(c for c in phone if c.isdigit())
+    ln = len(digits)
+    if not digits: return empty
+    if ln == 13 and digits.startswith("861"):
+        return {"code": "86", "name": "China", "clean_phone": digits[2:]}
+    if ln == 11 and digits.startswith("852"):
+        return {"code": "852", "name": "Hongkong", "clean_phone": digits[3:]}
+    if ln == 8 and digits[0] in "456789":
+        return {"code": "852", "name": "Hongkong", "clean_phone": digits}
+    if ln == 11 and digits.startswith("1"):
+        return {"code": "86", "name": "China", "clean_phone": digits}
+    if ln == 10 and digits[0] in "23456789":
+        return {"code": "1", "name": "Canada/US", "clean_phone": digits}
+    return {"code": None, "name": "Khong xac dinh", "clean_phone": digits}
 def _wk(o):
     try:
         if o.status=="cancelled": return render_template("customer_wink.html", order=o, code=None, phone=None, cancelled=True)
@@ -171,12 +180,16 @@ def _wk(o):
         if o.source_url and not o.latest_code:
             if not o.scraping_active: o.start_scraping(); db.session.commit()
             scraper.request_scrape(o.id)
-        # Tach dau so tu SDT
-        phone_prefix = detect_prefix(o.latest_phone)
+        # Nhan dien quoc gia + dau so tu SDT
+        ctry = detect_country(o.latest_phone)
+        phone_prefix = ("+" + ctry["code"]) if ctry["code"] else None
+        country_name = ctry["name"]
+        clean_phone = ctry["clean_phone"]
         login_mode = o.login_mode or "otp"
         agent_links = [{"url": l.url, "name": l.agent_name} for l in o.agent_links] if o.agent_links else []
         return render_template("customer_wink.html", order=o, code=o.latest_code, phone=o.latest_phone,
-                               phone_prefix=phone_prefix, login_mode=login_mode, agent_links=agent_links)
+                               phone_prefix=phone_prefix, country_name=country_name, clean_phone=clean_phone,
+                               login_mode=login_mode, agent_links=agent_links)
     except Exception as e:
         import traceback; traceback.print_exc()
         return f"<h1>Error</h1><pre>{e}</pre>", 500
