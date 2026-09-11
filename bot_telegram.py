@@ -50,16 +50,11 @@ def detect_type(url):
     # Meitu check truoc de domain cu the thang domain chung
     for d in meitu_domains():
         if d in u: return 'meitu'
-    for d in wink_domains():
-        if d in u: return 'wink'
-    for d in duolingo_domains():
-        if d in u: return 'duolingo'
-    return 'xingtu'
+    return 'wink'
+
 def get_link(token, ot):
-    if ot == 'duolingo': return f'{WEB}/dl/{token}'
-    if ot in ('meitu','meitu_account'): return f'{WEB}/token/{token}'
-    if ot in ('wink','wink_account'): return f'{WEB}/token/{token}'
-    return f'{WEB}/token/{token}'
+    if ot in ('meitu', 'meitu_account'): return f'{WEB}/meitu/?token={token}'
+    return f'{WEB}/wink/?token={token}'
 def extract_urls(text):
     pat = r"https?://[^\s<>\[\](){}\"'`,;]+"
     urls = re.findall(pat, text)
