@@ -3,7 +3,7 @@ from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 logging.basicConfig(format='%(asctime)s-%(name)s-%(levelname)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
-TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN', '8845577933:AAHBEsql9VNOy78rYNFCxx-iqRE84pJfJgM')
+TOKEN = '8845577933:AAHBEsql9VNOy78rYNFCxx-iqRE84pJfJgM'
 WEB = os.environ.get('WEB_BASE_URL', 'http://180.93.61.127:5000')
 DB_PATH = os.environ.get('DATABASE_URL', 'sqlite:///data.db')
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
