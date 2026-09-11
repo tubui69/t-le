@@ -57,9 +57,9 @@ def detect_type(url):
     return 'xingtu'
 def get_link(token, ot):
     if ot == 'duolingo': return f'{WEB}/dl/{token}'
-    if ot in ('meitu','meitu_account'): return f'{WEB}/meitu/{token}'
-    if ot in ('wink','wink_account'): return f'{WEB}/wink/{token}'
-    return f'{WEB}/xingtu/{token}'
+    if ot in ('meitu','meitu_account'): return f'{WEB}/token/{token}'
+    if ot in ('wink','wink_account'): return f'{WEB}/token/{token}'
+    return f'{WEB}/token/{token}'
 def extract_urls(text):
     pat = r"https?://[^\s<>\[\](){}\"'`,;]+"
     urls = re.findall(pat, text)
@@ -102,14 +102,14 @@ def create_order(url, name='TG User', login_mode='otp', extra_urls=None):
             db.session.rollback(); logger.error(f'Error: {e}'); return None, None, None
 async def cmd_start(update, ctx):
     t = ('\U0001f510 *Bot Lay Ma Tu Dong* \U0001f510\n\n'
-         'Gui link -> Bot tao don va tra ve link lay ma.\n\n'
+         'Gui link goc -> Bot tao don va tra ve link lay ma.\n\n'
          '\U0001f989 Duolingo: `https://dlg.llii.me/idxx?k=ABC`\n'
          '\U0001f511 Xingtu: `http://47.103.212.73/wap?key=ABC`\n'
-         '\U0001f4f1 Wink SDT+OTP: `https://a.wmrjkf.com/url/xxx`\n'
+         '\U0001f4f1 Wink SDT+OTP: gui link trang goc co chu \u624b\u673a\u53f7/\u9a8c\u8bc1\u7801\n'
          '\U0001f3a8 Meitu SDT+OTP: domain cai trong Admin Settings\n'
          '\U0001f512 SDT+MK+OTP: dung lenh /winkmk\n\n'
-         '\U0001f4ce Gui *nhieu link* trong 1 tin nhan!\n'
-         '\U0001f4dd Loc link tu van ban.\n\n'
+         '\U0001f4ce Gui *nhieu link* trong 1 tin nhan -> tao nhieu don!\n'
+         '\U0001f4dd Bot tu dong loc link tu van ban.\n\n'
          '*Lenh:* /start | /help | /stats | /winkmk')
     await update.message.reply_text(t, parse_mode='Markdown')
 async def cmd_help(update, ctx):
@@ -167,7 +167,7 @@ async def handle_msg(update, ctx):
         extra = wink_urls[1:] if len(wink_urls) > 1 else None
         oid, link, ot = create_order(first_url, name, login_mode='password_otp', extra_urls=extra)
         if oid:
-            n = len(agent_urls)
+            n = len(wink_urls)
             results[ot].append({'oid': oid, 'link': link, 'n': n})
             _winkmk_users.discard(uid)
         # Link khac (khong cung loai dai ly) tao binh thuong
@@ -187,7 +187,9 @@ async def handle_msg(update, ctx):
         'xingtu': '\U0001f511 Xingtu:',
         'duolingo': '\U0001f989 Duolingo:',
         'wink': '\U0001f4f1 Wink SDT+Ma:',
-        'wink_account': '\U0001f512 Wink SDT+MK+OTP:'
+        'wink_account': '\U0001f512 Wink SDT+MK+OTP:',
+        'meitu': '\U0001f3a8 Meitu SDT+Ma:',
+        'meitu_account': '\U0001f512 Meitu SDT+MK+OTP:'
     }
     for ot_key in ['xingtu', 'duolingo', 'wink', 'wink_account', 'meitu', 'meitu_account']:
         items = results[ot_key]
